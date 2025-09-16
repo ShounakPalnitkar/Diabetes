@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlucoseGuardian Pro - Advanced Glucose Monitoring</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #2ecc71;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--dark);
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 1000px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: linear-gradient(to right, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            color: #2ecc71;
+        }
+        
+        .tagline {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            min-height: 500px;
+        }
+        
+        .input-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 30px;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .output-section {
+            flex: 1.2;
+            min-width: 350px;
+            padding: 30px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 16px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .alert-box {
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: none;
+            color: white;
+            font-weight: 500;
+            animation: fadeIn 0.5s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .low {
+            background: linear-gradient(to right, #e74c3c, #e67e22);
+        }
+        
+        .high {
+            background: linear-gradient(to right, #f39c12, #d35400);
+        }
+        
+        .normal {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+        }
+        
+        .alert-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .alert-icon {
+            font-size: 32px;
+        }
+        
+        .alert-text {
+            flex: 1;
+        }
+        
+        .alert-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 10px;
+        }
+        
+        .trend-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .history {
+            margin-top: 20px;
+        }
+        
+        .history-item {
+            padding: 15px;
+            border-left: 5px solid var(--secondary);
+            background-color: #f8f9fa;
+            margin-bottom: 12px;
+            border-radius: 0 8px 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s;
+        }
+        
+        .history-item.low {
+            border-left-color: var(--danger);
+        }
+        
+        .history-item.high {
+            border-left-color: var(--warning);
+        }
+        
+        .history-item.normal {
+            border-left-color: var(--success);
+        }
+        
+        .history-value {
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .prediction {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .prediction-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+        
+        .prediction-text {
+            line-height: 1.6;
+        }
+        
+        .emergency {
+            background: #fff3f3;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 1px dashed #e74c3c;
+        }
+        
+        .emergency-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #e74c3c;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .emergency-contacts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .contact {
+            padding: 12px 15px;
+            background: white;
+            border-radius: 10px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .contact:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .contact-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .contact-number {
+            color: var(--secondary);
+            font-size: 14px;
+        }
+        
+        .contact-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: flex;
+            gap: 5px;
+        }
+        
+        .contact-action {
+            background: #f8f9fa;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .contact-action:hover {
+            background: #e0e0e0;
+        }
+        
+        .suggestions {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .suggestions-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+        
+        .suggestion-item {
+            padding: 10px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .suggestion-icon {
+            font-size: 20px;
+            color: #3498db;
+        }
+        
+        .add-contact-form {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 10px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-10px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        .trend-up {
+            color: var(--danger);
+        }
+        
+        .trend-down {
+            color: var(--success);
+        }
+        
+        .trend-stable {
+            color: var(--secondary);
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .emergency-contacts {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-shield-heart"></i>
+                <span>GlucoseGuardian Pro</span>
+            </div>
+            <div class="tagline">Advanced Hypoglycemia & Hyperglycemia Monitoring with Personalized Recommendations</div>
+        </header>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <div class="section-title">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Glucose Input</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="glucose-level">Current Glucose Level (mg/dL)</label>
+                    <input type="number" id="glucose-level" placeholder="Enter your glucose level" min="0" max="500">
+                </div>
+                
+                <div class="input-group">
+                    <label for="trend">Trend Direction</label>
+                    <select id="trend">
+                        <option value="stable">Stable</option>
+                        <option value="rising">Rising</option>
+                        <option value="falling">Falling</option>
+                        <option value="rapid-rise">Rising Rapidly</option>
+                        <option value="rapid-fall">Falling Rapidly</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="last-meal">Time Since Last Meal</label>
+                    <select id="last-meal">
+                        <option value="0-2">0-2 hours ago</option>
+                        <option value="2-4">2-4 hours ago</option>
+                        <option value="4-6">4-6 hours ago</option>
+                        <option value="6+">More than 6 hours ago</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="activity">Recent Activity Level</label>
+                    <select id="activity">
+                        <option value="low">Low (resting)</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="high">High (exercise)</option>
+                    </select>
+                </div>
+                
+                <button id="check-btn">
+                    <i class="fas fa-heartbeat"></i>
+                    Check Glucose Level
+                </button>
+                
+                <div class="volume-control">
+                    <label for="volume"><i class="fas fa-volume-up"></i> Alert Volume:</label>
+                    <input type="range" id="volume" min="0" max="1" step="0.1" value="0.7">
+                </div>
+                
+                <div class="emergency">
+                    <div class="emergency-title">
+                        <i class="fas fa-phone-alt"></i>
+                        <span>Emergency Contacts</span>
+                    </div>
+                    <p>In case of severe hypoglycemia, contact:</p>
+                    <div class="emergency-contacts" id="emergency-contacts">
+                        <!-- Contacts will be added here dynamically -->
+                    </div>
+                    
+                    <button id="add-contact-btn" style="margin-top: 15px; background: var(--success);">
+                        <i class="fas fa-plus"></i>
+                        Add Emergency Contact
+                    </button>
+                    
+                    <div class="add-contact-form" id="add-contact-form" style="display: none;">
+                        <div class="form-group">
+                            <label for="contact-name">Name</label>
+                            <input type="text" id="contact-name" placeholder="Contact name">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-phone">Phone Number</label>
+                            <input type="text" id="contact-phone" placeholder="Phone number">
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="save-contact-btn" style="background: var(--success);">
+                                <i class="fas fa-save"></i>
+                                Save
+                            </button>
+                            <button id="cancel-contact-btn" style="background: var(--danger);">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="output-section">
+                <div class="section-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Glucose Status</span>
+                </div>
+                
+                <div id="alert" class="alert-box">
+                    <div class="alert-content">
+                        <div class="alert-icon"><i class="fas fa-exclamation-circle"></i></div>
+                        <div class="alert-text">
+                            <div class="alert-title" id="alert-title">Status</div>
+                            <div id="alert-message">Message will appear here</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="trend-indicator">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Trend Analysis: </span>
+                    <span id="trend-text">No data yet</span>
+                </div>
+                
+                <div class="suggestions" id="suggestions-box">
+                    <div class="suggestions-title">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Recommendations</span>
+                    </div>
+                    <div id="suggestions-content">
+                        Enter your current glucose reading to get personalized recommendations.
+                    </div>
+                </div>
+                
+                <div class="prediction">
+                    <div class="prediction-title">
+                        <i class="fas fa-brain"></i>
+                        <span>Predictive Analysis</span>
+                    </div>
+                    <div class="prediction-text" id="prediction-text">
+                        Enter your current glucose reading to get a prediction of your levels in the next 30-60 minutes.
+                    </div>
+                </div>
+                
+                <div class="history">
+                    <div class="section-title">
+                        <i class="fas fa-history"></i>
+                        <span>Reading History</span>
+                    </div>
+                    <div id="history-container">
+                        <div class="history-item">
+                            <div class="history-time">No readings yet</div>
+                            <div class="history-value">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const glucoseInput = document.getElementById('glucose-level');
+            const checkBtn = document.getElementById('check-btn');
+            const alertBox = document.getElementById('alert');
+            const alertTitle = document.getElementById('alert-title');
+            const alertMessage = document.getElementById('alert-message');
+            const volumeControl = document.getElementById('volume');
+            const historyContainer = document.getElementById('history-container');
+            const trendText = document.getElementById('trend-text');
+            const predictionText = document.getElementById('prediction-text');
+            const trendSelect = document.getElementById('trend');
+            const lastMealSelect = document.getElementById('last-meal');
+            const activitySelect = document.getElementById('activity');
+            const suggestionsBox = document.getElementById('suggestions-content');
+            const emergencyContacts = document.getElementById('emergency-contacts');
+            const addContactBtn = document.getElementById('add-contact-btn');
+            const addContactForm = document.getElementById('add-contact-form');
+            const saveContactBtn = document.getElementById('save-contact-btn');
+            const cancelContactBtn = document.getElementById('cancel-contact-btn');
+            const contactNameInput = document.getElementById('contact-name');
+            const contactPhoneInput = document.getElementById('contact-phone');
+            
+            // Store previous readings
+            let readingsHistory = [];
+            let emergencyContactsList = [];
+            
+            // Initialize with some default contacts
+            emergencyContactsList.push({ name: 'Dr. Smith', phone: '(555) 123-4567' });
+            emergencyContactsList.push({ name: 'Emergency Contact', phone: '(555) 987-6543' });
+            updateEmergencyContacts();
+            
+            // Check if browser supports speech synthesis
+            if (!('speechSynthesis' in window)) {
+                alert('Your browser does not support speech synthesis. Please use a modern browser like Chrome, Edge, or Firefox.');
+            }
+            
+            checkBtn.addEventListener('click', checkGlucoseLevel);
+            addContactBtn.addEventListener('click', showAddContactForm);
+            saveContactBtn.addEventListener('click', saveEmergencyContact);
+            cancelContactBtn.addEventListener('click', hideAddContactForm);
+            
+            function checkGlucoseLevel() {
+                const glucoseLevel = parseInt(glucoseInput.value);
+                const trend = trendSelect.value;
+                const lastMeal = lastMealSelect.value;
+                const activity = activitySelect.value;
+                
+                if (isNaN(glucoseLevel)) {
+                    alert('Please enter a valid glucose level');
+                    return;
+                }
+                
+                // Clear previous alerts
+                alertBox.classList.remove('low', 'high', 'normal');
+                alertBox.style.display = 'none';
+                
+                // Determine glucose status
+                let status, title, message, voiceMessage, suggestions, voiceSuggestions;
+                
+                if (glucoseLevel < 70) {
+                    status = 'low';
+                    title = 'Hypoglycemia Alert!';
+                    message = `Warning! Your glucose level is low (${glucoseLevel} mg/dL). After some time, it may go down further. Be careful and consume fast-acting carbohydrates.`;
+                    voiceMessage = `Warning! Your glucose level is ${glucoseLevel}. It is low and after this many minutes can go down. Be careful.`;
+                    
+                    // Suggestions for low glucose
+                    suggestions = `
+                        <div class="suggestion-item">
+                            <div class="suggestion-icon"><i class="fas fa-candy-cane"></i></div>
+                            <div>Consume 15-20g of fast-acting carbs (glucose tablets, juice, regular soda)</div>
+                        </div>
+                        <div class="suggestion-item">
+                            <div class="suggestion-icon"><i class="fas fa-cookie"></i></div>
+                            <div>Follow with a snack containing protein and carbs if your next meal is more than an hour away</div>
+                        </div>
+                        <div class="suggestion-item">
+                            <div class="suggestion-icon"><i class="fas fa-sync-alt"></i></div>
+                            <div>Recheck your blood glucose after 15 minutes</div>
+                        </div>
+                    `;
+                    voiceSuggestions = `For low glucose, I recommend consuming 15 to 20 grams of fast-acting carbohydrates like glucose tablets, fruit juice, or regular soda. Follow with a snack containing protein and carbs if your next meal is more than an hour away. Recheck your blood glucose after 15 minutes.`;
+                } else if (glucoseLevel > 180) {
+                    status = 'high';
+                    title = 'Hyperglycemia Alert!';
+                    message = `Warning! Your glucose level is high (${glucoseLevel} mg/dL). Keep it in control. Consider taking your medication as prescribed and drinking water.`;
+                    voiceMessage = `Warning! Your glucose level is ${glucoseLevel}. It is high. Keep it in control.`;
+                    
+                    // Suggestions for high glucose
+                    suggestions = `
+                        <div class="suggestion-item">
+                            <div class="suggestion-icon"><i class="fas fa-tint"></i></div>
+                            <div>Drink plenty of water to help flush excess sugar from your blood</div>
+                        </div>
+                        <div class="suggestion-item">
+                            <div class="suggestion-icon"><i class="fas fa-walking"></i></div>
+                            <div>Take a brisk walk or do light exercise if appropriate</div>
+                        </div>
+                        <div class="suggestion-item">
+                            <div class="suggestion-icon"><i class="fas fa-pills"></i></div>
+                            <div>Consider using Glucose Step Pro as directed by your healthcare provider</div>
+                        </div>
+                        <div class="suggestion-item">
+                            <div class="suggestion-icon"><i class="fas fa-utensils"></i></div>
+                            <div>Avoid carbohydrates until your glucose levels stabilize</div>
+                        </div>
+                    `;
+                    voiceSuggestions = `For high glucose, I recommend drinking plenty of water to help flush excess sugar from your blood. Consider taking a brisk walk or doing light exercise if appropriate. Use Glucose Step Pro as directed by your healthcare provider. Avoid carbohydrates until your glucose levels stabilize.`;
+                } else {
+                    status = 'normal';
+                    title = 'Normal Glucose Level';
+                    message = `Your glucose level is normal (${glucoseLevel} mg/dL). Continue with your regular management plan.`;
+                    voiceMessage = `Your glucose level is ${glucoseLevel}. It is normal.`;
+                    
+                    // Suggestions for normal glucose
+                    suggestions = `
+                        <div class="suggestion-item">
+                            <div class="suggestion-icon"><i class="fas fa-check-circle"></i></div>
+                            <div>Your glucose levels are within the normal range. Maintain your current routine.</div>
+                        </div>
+                        <div class="suggestion-item">
+                            <div class="suggestion-icon"><i class="fas fa-clock"></i></div>
+                            <div>Continue to monitor your levels as recommended by your healthcare provider.</div>
+                        </div>
+                    `;
+                    voiceSuggestions = `Your glucose levels are within the normal range. Maintain your current routine and continue to monitor your levels as recommended by your healthcare provider.`;
+                }
+                
+                // Display alert
+                alertTitle.textContent = title;
+                alertMessage.textContent = message;
+                alertBox.classList.add(status);
+                alertBox.style.display = 'block';
+                
+                // Update suggestions
+                suggestionsBox.innerHTML = suggestions;
+                
+                // Update trend analysis
+                updateTrendAnalysis(trend, glucoseLevel);
+                
+                // Update prediction
+                updatePrediction(glucoseLevel, trend, lastMeal, activity);
+                
+                // Add to history
+                addToHistory(glucoseLevel, status, message);
+                
+                // Speak alert and suggestions
+                speak(voiceMessage + " " + voiceSuggestions, volumeControl.value);
+            }
+            
+            function updateTrendAnalysis(trend, level) {
+                let trendHtml = '';
+                let trendClass = '';
+                
+                switch(trend) {
+                    case 'rising':
+                        trendHtml = `<span class="trend-up"><i class="fas fa-arrow-up"></i> Rising Slowly</span>`;
+                        trendClass = 'trend-up';
+                        break;
+                    case 'falling':
+                        trendHtml = `<span class="trend-down"><i class="fas fa-arrow-down"></i> Falling Slowly</span>`;
+                        trendClass = 'trend-down';
+                        break;
+                    case 'rapid-rise':
+                        trendHtml = `<span class="trend-up"><i class="fas fa-arrow-up"></i> Rising Rapidly</span>`;
+                        trendClass = 'trend-up';
+                        break;
+                    case 'rapid-fall':
+                        trendHtml = `<span class="trend-down"><i class="fas fa-arrow-down"></i> Falling Rapidly</span>`;
+                        trendClass = 'trend-down';
+                        break;
+                    default:
+                        trendHtml = `<span class="trend-stable"><i class="fas fa-arrow-right"></i> Stable</span>`;
+                        trendClass = 'trend-stable';
+                }
+                
+                trendText.innerHTML = trendHtml;
+            }
+            
+            function updatePrediction(level, trend, lastMeal, activity) {
+                let prediction = '';
+                let futureLevel = level;
+                
+                // Basic prediction based on current trend
+                if (trend.includes('rising')) {
+                    futureLevel = level + (trend === 'rapid-rise' ? 30 : 15);
+                    prediction = `Based on your current trend, your glucose may rise to approximately ${futureLevel} mg/dL in the next 30-60 minutes.`;
+                } else if (trend.includes('falling')) {
+                    futureLevel = level - (trend === 'rapid-fall' ? 30 : 15);
+                    prediction = `Based on your current trend, your glucose may fall to approximately ${futureLevel} mg/dL in the next 30-60 minutes.`;
+                } else {
+                    prediction = `Your glucose levels appear to be stable and should remain around ${level} mg/dL in the near future.`;
+                }
+                
+                // Adjust prediction based on last meal
+                if (lastMeal === '0-2' && trend !== 'rising') {
+                    prediction += " Since you've eaten recently, expect a possible rise in glucose levels.";
+                } else if (lastMeal === '6+' && trend !== 'falling') {
+                    prediction += " It's been several hours since your last meal, so your glucose may start to decrease.";
+                }
+                
+                // Adjust prediction based on activity
+                if (activity === 'high' && !trend.includes('falling')) {
+                    prediction += " Your recent activity may cause your glucose levels to decrease.";
+                } else if (activity === 'low' && trend.includes('falling')) {
+                    prediction += " Your low activity level might slow down the decrease in glucose.";
+                }
+                
+                // Add warning if predicted level is concerning
+                if (futureLevel < 80) {
+                    prediction += " <strong>Warning:</strong> Your glucose may reach hypoglycemic levels. Be prepared to treat low glucose.";
+                } else if (futureLevel > 200) {
+                    prediction += " <strong>Warning:</strong> Your glucose may reach hyperglycemic levels. Consider taking appropriate action.";
+                }
+                
+                predictionText.innerHTML = prediction;
+            }
+            
+            function speak(text, volume) {
+                // Stop any ongoing speech
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.volume = volume;
+                utterance.rate = 0.9;
+                utterance.pitch = 1.1;
+                
+                window.speechSynthesis.speak(utterance);
+            }
+            
+            function addToHistory(level, status, message) {
+                const timestamp = new Date().toLocaleTimeString();
+                
+                // Remove the "no readings" placeholder if it exists
+                if (historyContainer.querySelector('.history-item').textContent.includes('No readings yet')) {
+                    historyContainer.innerHTML = '';
+                }
+                
+                const historyItem = document.createElement('div');
+                historyItem.classList.add('history-item', status);
+                historyItem.innerHTML = `
+                    <div class="history-time">${timestamp}</div>
+                    <div class="history-value">${level} mg/dL</div>
+                `;
+                
+                // Add to beginning of history
+                historyContainer.insertBefore(historyItem, historyContainer.firstChild);
+                
+                // Keep only last 5 readings
+                if (historyContainer.children.length > 5) {
+                    historyContainer.removeChild(historyContainer.lastChild);
+                }
+            }
+            
+            function showAddContactForm() {
+                addContactForm.style.display = 'block';
+            }
+            
+            function hideAddContactForm() {
+                addContactForm.style.display = 'none';
+                contactNameInput.value = '';
+                contactPhoneInput.value = '';
+            }
+            
+            function saveEmergencyContact() {
+                const name = contactNameInput.value.trim();
+                const phone = contactPhoneInput.value.trim();
+                
+                if (name && phone) {
+                    emergencyContactsList.push({ name, phone });
+                    updateEmergencyContacts();
+                    hideAddContactForm();
+                } else {
+                    alert('Please enter both name and phone number');
+                }
+            }
+            
+            function updateEmergencyContacts() {
+                emergencyContacts.innerHTML = '';
+                
+                emergencyContactsList.forEach((contact, index) => {
+                    const contactElement = document.createElement('div');
+                    contactElement.classList.add('contact');
+                    contactElement.innerHTML = `
+                        <div class="contact-actions">
+                            <button class="contact-action" onclick="callContact('${contact.phone}')">
+                                <i class="fas fa-phone"></i>
+                            </button>
+                            <button class="contact-action" onclick="deleteContact(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="contact-name">${contact.name}</div>
+                        <div class="contact-number">${contact.phone}</div>
+                    `;
+                    emergencyContacts.appendChild(contactElement);
+                });
+            }
+            
+            function callContact(phone) {
+                speak(`Calling your emergency contact at ${phone}`, volumeControl.value);
+                // In a real app, this would actually call the number
+            }
+            
+            function deleteContact(index) {
+                emergencyContactsList.splice(index, 1);
+                updateEmergencyContacts();
+            }
+            
+            // Make functions available globally for onclick handlers
+            window.callContact = callContact;
+            window.deleteContact = deleteContact;
+            
+            // Allow pressing Enter to check glucose level
+            glucoseInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkGlucoseLevel();
+                }
+            });
+            
+            // Initialize with example data
+            setTimeout(() => {
+                glucoseInput.value = 85;
+                checkGlucoseLevel();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
