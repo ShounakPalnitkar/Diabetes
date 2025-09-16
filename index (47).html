@@ -1,0 +1,3217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GlucoStep Pro - Advanced Diabetes Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --accent: #f72585;
+            --diabetes-blue: #1a73e8;
+            --diabetes-green: #34a853;
+            --diabetes-red: #ea4335;
+            --diabetes-yellow: #fbbc04;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #ef233c;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+
+        [data-theme="dark"] {
+            --primary: #5e72e4;
+            --primary-dark: #4a5fc5;
+            --secondary: #4f46e5;
+            --accent: #f93176;
+            --diabetes-blue: #3b82f6;
+            --diabetes-green: #10b981;
+            --diabetes-red: #ef4444;
+            --diabetes-yellow: #f59e0b;
+            --light: #1a1d21;
+            --dark: #f8f9fa;
+            --success: #0ea5e9;
+            --warning: #f97316;
+            --danger: #dc2626;
+            --gray: #9ca3af;
+            --light-gray: #374151;
+            --card-bg: #24272d;
+            --body-bg: #15171b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--body-bg, #f5f7ff);
+            color: var(--dark);
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--diabetes-blue);
+            letter-spacing: -0.5px;
+        }
+
+        .app-container {
+            background: var(--card-bg, white);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .stats-card {
+            background: var(--card-bg, white);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--light-gray);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .step-counter {
+            font-size: 2.75rem;
+            font-weight: 700;
+            color: var(--diabetes-blue);
+            margin: 10px 0;
+            font-feature-settings: "tnum";
+        }
+
+        .step-goal {
+            font-size: 1rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .step-progress {
+            height: 8px;
+            border-radius: 4px;
+            margin: 15px 0;
+            background-color: var(--light-gray);
+        }
+
+        .step-progress .progress-bar {
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .activity-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--diabetes-blue);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--gray);
+            color: white;
+        }
+
+        .btn-accent {
+            background-color: var(--diabetes-green);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background-color: #2d9547;
+        }
+
+        #stepMap {
+            height: 350px;
+            border-radius: 12px;
+            margin-top: 15px;
+            z-index: 1;
+            border: 1px solid var(--light-gray);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--diabetes-blue);
+            font-feature-settings: "tnum";
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 0.75rem;
+        }
+
+        footer {
+            background-color: var(--light-gray);
+            color: var(--dark);
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+        }
+
+        /* Glucose monitoring */
+        .glucose-card {
+            border-left: 4px solid var(--diabetes-blue);
+        }
+
+        .glucose-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--diabetes-blue);
+        }
+
+        .glucose-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-normal {
+            background-color: rgba(52, 168, 83, 0.2);
+            color: var(--diabetes-green);
+        }
+
+        .status-high {
+            background-color: rgba(234, 67, 53, 0.2);
+            color: var(--diabetes-red);
+        }
+
+        .status-low {
+            background-color: rgba(251, 188, 4, 0.2);
+            color: var(--diabetes-yellow);
+        }
+
+        /* Device connection */
+        .device-status {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background-color: var(--light);
+        }
+
+        .device-status.connected {
+            border-left: 4px solid var(--diabetes-green);
+        }
+
+        .device-status.disconnected {
+            border-left: 4px solid var(--danger);
+        }
+
+        .device-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        /* Voice selection */
+        .voice-option {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--light-gray);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .voice-option:hover, .voice-option.selected {
+            background-color: var(--light);
+            border-color: var(--diabetes-blue);
+        }
+
+        /* Route planning controls */
+        .route-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: var(--card-bg, white);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        /* Gauge chart */
+        .gauge-container {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .gauge {
+            width: 100%;
+            height: auto;
+        }
+
+        .gauge-needle {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            width: 4px;
+            height: 40%;
+            background: var(--dark);
+            transform-origin: bottom center;
+            transition: transform 0.5s ease;
+            z-index: 10;
+            border-radius: 2px;
+        }
+
+        .gauge-value {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .gauge-label {
+            position: absolute;
+            top: 75%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* Digital Twin Section */
+        .digital-twin-card {
+            border-left: 4px solid var(--accent);
+        }
+
+        .twin-visualization {
+            height: 200px;
+            background: linear-gradient(135deg, #f5f7ff 0%, #e6e9ff 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .twin-visualization::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 50px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            transform: rotate(-45deg);
+            animation: shine 3s infinite linear;
+        }
+
+        @keyframes shine {
+            0% { left: -150%; }
+            100% { left: 150%; }
+        }
+
+        /* Mood tracker */
+        .mood-options {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+
+        .mood-option {
+            text-align: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .mood-option:hover, .mood-option.selected {
+            background-color: var(--light);
+        }
+
+        .mood-emoji {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        /* Theme switcher */
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--diabetes-blue);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Device connection modal */
+        .device-option {
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .device-option:hover {
+            border-color: var(--diabetes-blue);
+            background-color: var(--light);
+        }
+
+        .device-option.selected {
+            border-color: var(--diabetes-blue);
+            background-color: rgba(26, 115, 232, 0.1);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 1rem;
+                border-radius: 0;
+                margin-top: 0;
+            }
+            
+            #stepMap {
+                height: 300px;
+            }
+            
+            .step-counter {
+                font-size: 2.25rem;
+            }
+            
+            .route-controls {
+                top: 5px;
+                right: 5px;
+                padding: 8px;
+            }
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+
+        .toast {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: none;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Pulse animation for important elements */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Tooltip styling */
+        .tooltip-inner {
+            max-width: 300px;
+            padding: 8px 12px;
+            background-color: var(--dark);
+            font-size: 0.85rem;
+        }
+
+        /* Improved form controls */
+        .form-control:focus {
+            border-color: var(--diabetes-blue);
+            box-shadow: 0 0 0 0.25rem rgba(26, 115, 232, 0.25);
+        }
+
+        /* Enhanced table styling */
+        .table-hover tbody tr:hover {
+            background-color: rgba(26, 115, 232, 0.05);
+        }
+
+        /* Smooth transitions */
+        .smooth-transition {
+            transition: all 0.3s ease;
+        }
+
+        /* Route point markers */
+        .route-point-marker {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        /* Current position marker */
+        .current-position-marker {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        /* Manual route input form */
+        .manual-route-form {
+            background: var(--card-bg, white);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 10px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .input-group-text {
+            background-color: var(--light-gray);
+        }
+
+        .coordinate-input {
+            max-width: 120px;
+        }
+
+        .address-input {
+            width: 100%;
+        }
+
+        .tab-content {
+            padding-top: 15px;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--diabetes-blue);
+            border-bottom: 2px solid var(--diabetes-blue);
+            background: transparent;
+        }
+
+        /* Glucose chart */
+        .glucose-chart-container {
+            height: 250px;
+            margin-top: 15px;
+        }
+
+        /* AI Insights Section */
+        .ai-insight-card {
+            border-left: 4px solid var(--success);
+        }
+
+        .insight-item {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: var(--light);
+            border-left: 3px solid var(--success);
+        }
+
+        .insight-source {
+            font-size: 0.8rem;
+            color: var(--gray);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-heartbeat me-2"></i>GlucoStep <span class="text-muted" style="font-weight: 400; font-size: 0.9em;">Pro</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#dashboard"><i class="fas fa-tachometer-alt me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#history"><i class="fas fa-history me-1"></i> History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#glucose"><i class="fas fa-chart-line me-1"></i> Glucose</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#digital-twin"><i class="fas fa-user-circle me-1"></i> Digital Twin</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#settings"><i class="fas fa-cog me-1"></i> Settings</a>
+                    </li>
+                </ul>
+                <div class="ms-3 d-flex align-items-center">
+                    <span class="me-2"><i class="fas fa-sun"></i></span>
+                    <label class="theme-switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="ms-2"><i class="fas fa-moon"></i></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="toast-container"></div>
+
+    <div class="container app-container" id="dashboard">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Advanced Diabetes Management</h2>
+            <p class="lead text-muted">Track your steps and glucose levels with AI-powered insights</p>
+        </div>
+        
+        <!-- Device Connection Status -->
+        <div class="device-status disconnected" id="deviceStatus">
+            <div class="device-icon">
+                <i class="fas fa-mobile-alt"></i>
+            </div>
+            <div>
+                <h5 class="mb-1">Device Not Connected</h5>
+                <p class="mb-0 small">Connect to your phone or smartwatch to track steps</p>
+            </div>
+            <button class="btn btn-sm btn-primary ms-auto" id="connectDeviceBtn">Connect Device</button>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0"><i class="fas fa-walking me-2"></i>Step Counter</h4>
+                        <span id="trackingStatus" class="badge bg-secondary">Not Tracking</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="step-counter" id="stepCount">0</div>
+                        <div class="step-goal">Daily Goal: <span id="stepGoal">10,000</span> steps</div>
+                        <div class="progress step-progress">
+                            <div class="progress-bar bg-success" role="progressbar" id="stepProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-buttons">
+                        <button class="btn btn-primary" id="startTracking" data-bs-toggle="tooltip" data-bs-placement="top" title="Start tracking your walk">
+                            <span id="startTrackingText"><i class="fas fa-play me-1"></i> Start Tracking</span>
+                            <span id="startTrackingLoader" class="spinner" style="display: none;"></span>
+                        </button>
+                        <button class="btn btn-secondary" id="stopTracking" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Stop current tracking session">
+                            <i class="fas fa-stop me-1"></i> Stop
+                        </button>
+                        <button class="btn btn-accent" id="voiceFeedback" data-bs-toggle="tooltip" data-bs-placement="top" title="Hear your current stats">
+                            <i class="fas fa-volume-up me-1"></i> Feedback
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stats-card glucose-card">
+                    <h4 class="mb-3"><i class="fas fa-tint me-2"></i>Glucose Monitoring</h4>
+                    
+                    <div class="gauge-container mb-3">
+                        <div class="gauge">
+                            <svg viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#34a853" />
+                                        <stop offset="50%" stop-color="#fbbc04" />
+                                        <stop offset="100%" stop-color="#ea4335" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 10,50 A 40,40 0 0 1 90,50" stroke="url(#gaugeGradient)" stroke-width="8" fill="none" />
+                                <path id="gaugeFill" d="M 10,50 A 40,40 0 0 1 90,50" stroke="#e9ecef" stroke-width="8" fill="none" />
+                            </svg>
+                        </div>
+                        <div class="gauge-needle" id="gaugeNeedle"></div>
+                        <div class="gauge-value" id="gaugeValue">--</div>
+                        <div class="gauge-label">mg/dL</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="glucose-value" id="currentGlucose">--</div>
+                            <div class="stat-label">Current (mg/dL)</div>
+                        </div>
+                        <div class="col-6 d-flex align-items-center">
+                            <span class="glucose-status" id="glucoseStatus">--</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Target Glucose Level</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="targetGlucose" placeholder="Target glucose" value="120">
+                            <button class="btn btn-primary" id="setTargetBtn">Set Target</button>
+                        </div>
+                        <small class="text-muted">Set your target glucose level to calculate required steps</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Add Glucose Reading</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="glucoseInput" placeholder="Enter value">
+                            <button class="btn btn-primary" id="addGlucoseBtn">Add</button>
+                        </div>
+                    </div>
+                    
+                    <div class="glucose-chart-container" id="glucoseChartContainer">
+                        <canvas id="glucoseChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="stats-card">
+                    <h4 class="mb-3"><i class="fas fa-chart-line me-2"></i>Today's Stats</h4>
+                    <div class="row">
+                        <div class="col-6 mb-3 stat-card">
+                            <div class="stat-value" id="walkDistance">0.00</div>
+                            <div class="stat-label">Kilometers</div>
+                        </div>
+                        <div class="col-6 mb-3 stat-card">
+                            <div class="stat-value" id="caloriesBurned">0</div>
+                            <div class="stat-label">Calories</div>
+                        </div>
+                        <div class="col-6 mb-3 stat-card">
+                            <div class="stat-value" id="walkTime">0:00</div>
+                            <div class="stat-label">Time</div>
+                        </div>
+                        <div class="col-6 mb-3 stat-card">
+                            <div class="stat-value" id="walkSpeed">0.0</div>
+                            <div class="stat-label">km/h</div>
+                        </div>
+                        <div class="col-6 mb-3 stat-card">
+                            <div class="stat-value" id="heartRate">--</div>
+                            <div class="stat-label">Heart Rate</div>
+                        </div>
+                        <div class="col-6 mb-3 stat-card">
+                            <div class="stat-value" id="glucoseImpact">--</div>
+                            <div class="stat-label">Glucose Impact</div>
+                        </div>
+                    </div>
+
+                    <div id="environmentImpactContainer"></div>
+                </div>
+            </div>
+            
+            <div class="col-lg-8">
+                <div class="stats-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Your Walk Map</h4>
+                        <div>
+                            <span id="gpsAccuracy" class="badge bg-info">GPS: --</span>
+                        </div>
+                    </div>
+                    <div id="stepMap"></div>
+                    <div class="mt-3 text-center">
+                        <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i> <span id="currentLocation">Set your route to begin tracking</span></p>
+                    </div>
+                </div>
+                
+                <div class="stats-card">
+                    <h4 class="mb-3"><i class="fas fa-brain me-2"></i>Cognitive & Mood Impact</h4>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">How are you feeling right now?</label>
+                        <div class="mood-options">
+                            <div class="mood-option" data-mood="very_sad">
+                                <div class="mood-emoji">😢</div>
+                                <div>Very Sad</div>
+                            </div>
+                            <div class="mood-option" data-mood="sad">
+                                <div class="mood-emoji">😔</div>
+                                <div>Sad</div>
+                            </div>
+                            <div class="mood-option" data-mood="neutral">
+                                <div class="mood-emoji">😐</div>
+                                <div>Neutral</div>
+                            </div>
+                            <div class="mood-option" data-mood="happy">
+                                <div class="mood-emoji">😊</div>
+                                <div>Happy</div>
+                            </div>
+                            <div class="mood-option" data-mood="very_happy">
+                                <div class="mood-emoji">😄</div>
+                                <div>Very Happy</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="moodInsights" class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Track your mood to see how glucose levels affect your mental state.
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button class="btn btn-outline-primary btn-sm" id="analyzeMoodBtn">
+                            <i class="fas fa-chart-line me-1"></i> Analyze Mood Patterns
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stats-card">
+                    <h4 class="mb-3"><i class="fas fa-lightbulb me-2"></i>Diabetes Insights</h4>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Walking helps control blood sugar levels by increasing insulin sensitivity.
+                    </div>
+                    
+                    <div id="diabetesInsights">
+                        <p><i class="fas fa-check-circle text-success me-2"></i> Your daily walking goal is set to help maintain healthy glucose levels</p>
+                        <p><i class="fas fa-bolt text-warning me-2"></i> Regular activity can reduce insulin resistance by up to 40%</p>
+                        <p><i class="fas fa-chart-line text-primary me-2"></i> Track your glucose before and after walks to see the impact</p>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button class="btn btn-outline-primary btn-sm" id="viewTipsBtn">
+                            <i class="fas fa-book me-1"></i> View Diabetes Walking Tips
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section id="history" class="container my-5 py-5" style="display: none;">
+        <div class="app-container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0"><i class="fas fa-history me-2"></i>Activity History</h2>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary me-2" id="exportHistory" data-bs-toggle="tooltip" data-bs-placement="top" title="Export history as CSV">
+                        <i class="fas fa-download me-1"></i> Export
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" id="clearHistory" data-bs-toggle="tooltip" data-bs-placement="top" title="Clear all history">
+                        <i class="fas fa-trash me-1"></i> Clear All
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Steps</th>
+                            <th>Distance</th>
+                            <th>Glucose Before</th>
+                            <th>Glucose After</th>
+                            <th>Impact</th>
+                            <th>Mood Change</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTable">
+                        <tr>
+                            <td colspan="8" class="text-center py-4">No activity history yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section id="glucose" class="container my-5 py-5" style="display: none;">
+        <div class="app-container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0"><i class="fas fa-chart-line me-2"></i>Glucose Trends</h2>
+                <button class="btn btn-sm btn-primary" id="addGlucoseReadingBtn">
+                    <i class="fas fa-plus me-1"></i> Add Reading
+                </button>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="stats-card text-center">
+                        <div class="stat-value" id="avgGlucose">--</div>
+                        <div class="stat-label">Average Glucose</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card text-center">
+                        <div class="stat-value" id="glucoseRange">--</div>
+                        <div class="stat-label">Glucose Variability</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card text-center">
+                        <div class="stat-value" id="timeInRange">--</div>
+                        <div class="stat-label">Time in Range</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <h4 class="mb-3">Glucose History</h4>
+                <div style="height: 300px;">
+                    <canvas id="glucoseTrendChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="stats-card mt-4">
+                <h4 class="mb-3">Glucose vs Activity Correlation</h4>
+                <div style="height: 300px;">
+                    <canvas id="glucoseActivityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="digital-twin" class="container my-5 py-5" style="display: none;">
+        <div class="app-container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0"><i class="fas fa-user-circle me-2"></i>Digital Twin Simulation</h2>
+                <button class="btn btn-sm btn-primary" id="runSimulationBtn">
+                    <i class="fas fa-play me-1"></i> Run Simulation
+                </button>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="stats-card digital-twin-card">
+                        <h4 class="mb-3"><i class="fas fa-cogs me-2"></i>Simulation Parameters</h4>
+                        
+                        <div class="mb-3">
+                            <label for="currentGlucoseInput" class="form-label">Current Glucose (mg/dL)</label>
+                            <input type="number" class="form-control" id="currentGlucoseInput" value="180">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="targetGlucoseInput" class="form-label">Target Glucose (mg/dL)</label>
+                            <input type="number" class="form-control" id="targetGlucoseInput" value="120">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="insulinSensitivity" class="form-label">Insulin Sensitivity</label>
+                            <select class="form-select" id="insulinSensitivity">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="activityLevel" class="form-label">Activity Level</label>
+                            <select class="form-select" id="activityLevel">
+                                <option value="sedentary">Sedentary</option>
+                                <option value="light" selected>Light</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="active">Active</option>
+                                <option value="very_active">Very Active</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button class="btn btn-primary" id="calculateStepsBtn">
+                                <i class="fas fa-calculator me-1"></i> Calculate Required Steps
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="stats-card digital-twin-card">
+                        <h4 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Simulation Results</h4>
+                        
+                        <div class="twin-visualization">
+                            <div class="text-center">
+                                <i class="fas fa-user fa-5x mb-3" style="color: #4361ee;"></i>
+                                <h5>Your Digital Twin</h5>
+                                <p class="text-muted">Run simulation to see predictions</p>
+                            </div>
+                        </div>
+                        
+                        <div id="simulationResults">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i> Enter parameters and run simulation to see results.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-card ai-insight-card">
+                <h4 class="mb-3"><i class="fas fa-robot me-2"></i>AI-Powered Insights</h4>
+                
+                <div class="mb-3">
+                    <label class="form-label">Select AI Model for Analysis</label>
+                    <select class="form-select" id="aiModelSelect">
+                        <option value="medpalm">MedPaLM 2 (Google) - Medical Reasoning</option>
+                        <option value="biogpt">BioGPT (Microsoft) - Research Synthesis</option>
+                        <option value="clinicalbert">ClinicalBERT - EHR Understanding</option>
+                        <option value="gatortron">GatorTron - Clinical Notes Analysis</option>
+                        <option value="pubmedgpt">PubMedGPT - Medical Literature</option>
+                    </select>
+                </div>
+                
+                <div id="aiInsightsContainer">
+                    <div class="insight-item">
+                        <p>Based on your historical data, walking 8,000-10,000 steps daily shows a consistent 15-20% reduction in post-prandial glucose levels.</p>
+                        <div class="insight-source">MedPaLM 2 Analysis</div>
+                    </div>
+                    
+                    <div class="insight-item">
+                        <p>Research indicates that moderate-intensity walking for 30 minutes after meals can lower glucose levels by 20-30% in type 2 diabetes patients.</p>
+                        <div class="insight-source">BioGPT Research Synthesis</div>
+                    </div>
+                </div>
+                
+                <div class="d-grid mt-3">
+                    <button class="btn btn-outline-primary" id="generateInsightsBtn">
+                        <i class="fas fa-brain me-1"></i> Generate New Insights
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="settings" class="container my-5 py-5" style="display: none;">
+        <div class="app-container">
+            <h2 class="fw-bold mb-4"><i class="fas fa-cog me-2"></i>Settings</h2>
+            <form id="settingsForm">
+                <div class="mb-4">
+                    <h5 class="mb-3"><i class="fas fa-user me-2"></i>Personal Settings</h5>
+                    <div class="mb-3">
+                        <label for="stepGoalInput" class="form-label">Daily Step Goal</label>
+                        <input type="number" class="form-control" id="stepGoalInput" value="10000" min="1000" max="50000">
+                    </div>
+                    <div class="mb-3">
+                        <label for="weightInput" class="form-label">Your Weight (kg)</label>
+                        <input type="number" class="form-control" id="weightInput" value="70" min="30" max="200">
+                    </div>
+                    <div class="mb-3">
+                        <label for="strideLengthInput" class="form-label">Stride Length (cm)</label>
+                        <input type="number" class="form-control" id="strideLengthInput" value="70" min="30" max="120">
+                        <small class="text-muted">Used for more accurate step counting</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="diabetesType" class="form-label">Diabetes Type</label>
+                        <select class="form-select" id="diabetesType">
+                            <option value="type1">Type 1 Diabetes</option>
+                            <option value="type2" selected>Type 2 Diabetes</option>
+                            <option value="prediabetes">Prediabetes</option>
+                            <option value="gestational">Gestational Diabetes</option>
+                            <option value="none">No Diabetes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="mb-3"><i class="fas fa-bell me-2"></i>Notifications</h5>
+                    <div class="mb-3 form-check form-switch">
+                        <input type="checkbox" class="form-check-input" id="voiceEnabled" checked>
+                        <label class="form-check-label" for="voiceEnabled">Voice Feedback</label>
+                    </div>
+                    <div class="mb-3 form-check form-switch">
+                        <input type="checkbox" class="form-check-input" id="glucoseReminders" checked>
+                        <label class="form-check-label" for="glucoseReminders">Glucose Check Reminders</label>
+                    </div>
+                    <div class="mb-3 form-check form-switch">
+                        <input type="checkbox" class="form-check-input" id="inactivityNotification" checked>
+                        <label class="form-check-label" for="inactivityNotification">Inactivity Alerts</label>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="mb-3"><i class="fas fa-microphone me-2"></i>Voice Settings</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Select Voice Type</label>
+                        <div class="voice-option selected" data-voice="female">
+                            <i class="fas fa-female me-2"></i> Female Voice
+                        </div>
+                        <div class="voice-option" data-voice="male">
+                            <i class="fas fa-male me-2"></i> Male Voice
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container py-4">
+            <div class="text-center">
+                <h5 class="mb-3">GlucoStep Pro</h5>
+                <p class="mb-2">Advanced diabetes management through AI-powered tracking and insights</p>
+                <p class="mb-0 text-muted">&copy; 2023 GlucoStep. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Device Connection Modal -->
+    <div class="modal fade" id="deviceConnectionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Connect Device</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Select the device you want to connect:</p>
+                    
+                    <div class="device-option" data-device-type="phone">
+                        <div class="d-flex align-items-center">
+                            <div class="device-icon me-3">
+                                <i class="fas fa-mobile-alt fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Smartphone</h6>
+                                <p class="mb-0 small">Connect to your phone's step counter</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="device-option" data-device-type="watch">
+                        <div class="d-flex align-items-center">
+                            <div class="device-icon me-3">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Smartwatch</h6>
+                                <p class="mb-0 small">Connect to your wearable device</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="device-option" data-device-type="cgm">
+                        <div class="d-flex align-items-center">
+                            <div class="device-icon me-3">
+                                <i class="fas fa-heartbeat fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">CGM Device</h6>
+                                <p class="mb-0 small">Connect to your continuous glucose monitor</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmDeviceConnection">Connect</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // App State
+        let stepCount = 0;
+        let stepInterval;
+        let map;
+        let currentPositionMarker;
+        let walkingPath;
+        let isTracking = false;
+        let trackingStartTime;
+        let totalDistance = 0;
+        let lastPosition = null;
+        let watchId = null;
+        let currentHeartRate = 72;
+        let heartRateInterval;
+        let routeControl;
+        let startMarker;
+        let endMarker;
+        let isRouteSet = false;
+        let routeWaypoints = [];
+        let glucoseReadings = [];
+        let selectedVoice = 'female';
+        let deviceConnected = false;
+        let glucoseChart;
+        let glucoseTrendChart;
+        let glucoseActivityChart;
+        let currentMood = null;
+        let targetGlucose = 120;
+        let currentTheme = 'light';
+        let selectedDeviceType = null;
+        
+        // Settings with defaults
+        let settings = {
+            stepGoal: 10000,
+            weight: 70,
+            strideLength: 70,
+            voiceEnabled: true,
+            glucoseReminders: true,
+            inactivityNotification: true,
+            diabetesType: 'type2'
+        };
+
+        // Initialize OpenStreetMap (Leaflet)
+        function initMap() {
+            map = L.map('stepMap', {
+                zoomControl: false
+            }).setView([0, 0], 2);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Add zoom control with a better position
+            L.control.zoom({
+                position: 'topright'
+            }).addTo(map);
+            
+            currentPositionMarker = L.marker([0, 0], {
+                icon: L.divIcon({
+                    className: 'current-position-marker',
+                    html: '<i class="fas fa-circle" style="color: #f72585; font-size: 20px;"></i>',
+                    iconSize: [20, 20]
+                }),
+                zIndexOffset: 1000
+            }).addTo(map);
+            
+            walkingPath = L.polyline([], {
+                color: '#4361ee',
+                weight: 4,
+                opacity: 1,
+                lineJoin: 'round',
+                smoothFactor: 1
+            }).addTo(map);
+            
+            // Add route controls
+            addRouteControls();
+            
+            // Initialize tooltips
+            initTooltips();
+        }
+        
+        // Initialize tooltips
+        function initTooltips() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }
+        
+        // Add route planning controls to the map
+        function addRouteControls() {
+            const controls = document.createElement('div');
+            controls.className = 'route-controls';
+            controls.innerHTML = `
+                <button class="btn btn-sm btn-primary mb-2" id="setRouteBtn" data-bs-toggle="tooltip" data-bs-placement="left" title="Set your walking route">
+                    <i class="fas fa-route me-1"></i> Set Route
+                </button>
+                <button class="btn btn-sm btn-secondary" id="clearRouteBtn" disabled data-bs-toggle="tooltip" data-bs-placement="left" title="Clear current route">
+                    <i class="fas fa-times me-1"></i> Clear
+                </button>
+            `;
+            
+            document.getElementById('stepMap').appendChild(controls);
+            
+            // Add event listeners
+            document.getElementById('setRouteBtn').addEventListener('click', showRouteOptions);
+            document.getElementById('clearRouteBtn').addEventListener('click', clearRoute);
+        }
+        
+        // Show route setting options
+        function showRouteOptions() {
+            if (isTracking) {
+                showToast('Cannot set route while tracking is active', 'warning');
+                return;
+            }
+            
+            Swal.fire({
+                title: 'Set Your Walking Route',
+                html: `
+                    <div class="manual-route-form">
+                        <ul class="nav nav-tabs" id="routeMethodTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="click-tab" data-bs-toggle="tab" data-bs-target="#click-method" type="button" role="tab">Click on Map</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-method" type="button" role="tab">Enter Manually</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="routeMethodTabsContent">
+                            <div class="tab-pane fade show active" id="click-method" role="tabpanel">
+                                <p class="mt-2">Click on the map to set your start and end points</p>
+                            </div>
+                            <div class="tab-pane fade" id="manual-method" role="tabpanel">
+                                <div class="mt-3">
+                                    <h6>Start Point</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Address</label>
+                                        <input type="text" class="form-control address-input" id="startAddress" placeholder="Enter address or place name">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <label class="form-label">Latitude</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control coordinate-input" id="startLat" placeholder="Latitude" step="0.000001">
+                                                <span class="input-group-text">°</span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-label">Longitude</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control coordinate-input" id="startLng" placeholder="Longitude" step="0.000001">
+                                                <span class="input-group-text">°</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <h6>End Point</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Address</label>
+                                        <input type="text" class="form-control address-input" id="endAddress" placeholder="Enter address or place name">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <label class="form-label">Latitude</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control coordinate-input" id="endLat" placeholder="Latitude" step="0.000001">
+                                                <span class="input-group-text">°</span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-label">Longitude</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control coordinate-input" id="endLng" placeholder="Longitude" step="0.000001">
+                                                <span class="input-group-text">°</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 d-flex justify-content-between">
+                                    <button class="btn btn-sm btn-outline-secondary" id="useCurrentLocation">
+                                        <i class="fas fa-location-arrow me-1"></i> Use Current Location
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" id="setManualRoute">
+                                        <i class="fas fa-check me-1"></i> Set Route
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Cancel',
+                showCancelButton: false,
+                allowOutsideClick: false,
+                backdrop: true,
+                width: '600px',
+                didOpen: () => {
+                    // Initialize tabs
+                    const tabEls = document.querySelectorAll('#routeMethodTabs button');
+                    tabEls.forEach(tabEl => {
+                        tabEl.addEventListener('click', event => {
+                            const tabTrigger = new bootstrap.Tab(event.target);
+                            tabTrigger.show();
+                        });
+                    });
+
+                    // Set up manual route form event listeners
+                    document.getElementById('useCurrentLocation').addEventListener('click', setCurrentLocation);
+                    document.getElementById('setManualRoute').addEventListener('click', setManualRoute);
+                    
+                    // Set up click method
+                    const clickTab = document.getElementById('click-method');
+                    if (clickTab.classList.contains('active')) {
+                        setRouteByClick();
+                    }
+                    
+                    // Watch for tab changes
+                    document.getElementById('routeMethodTabs').addEventListener('click', (e) => {
+                        if (e.target.id === 'click-tab') {
+                            setRouteByClick();
+                        }
+                    });
+                }
+            }).then((result) => {
+                // Clean up any map click handlers if they exist
+                map.off('click');
+            });
+        }
+        
+        // Set route by clicking on the map
+        function setRouteByClick() {
+            // Clear any existing route
+            clearRoute();
+            
+            let clickCount = 0;
+            let startPoint = null;
+            let endPoint = null;
+            let tempMarker = null;
+            
+            const mapClickHandler = (e) => {
+                if (clickCount === 0) {
+                    // First click - set start point
+                    startPoint = e.latlng;
+                    if (tempMarker) map.removeLayer(tempMarker);
+                    tempMarker = L.marker(startPoint, {
+                        icon: L.divIcon({
+                            className: 'route-point-marker',
+                            html: '<i class="fas fa-map-marker-alt" style="color: #4cc9f0; font-size: 24px;"></i>',
+                            iconSize: [24, 24]
+                        }),
+                        zIndexOffset: 1000
+                    }).addTo(map)
+                    .bindPopup('Start Point', {autoClose: false})
+                    .openPopup();
+                    
+                    clickCount++;
+                    document.getElementById('currentLocation').textContent = 'Now click to set end point';
+                } else if (clickCount === 1) {
+                    // Second click - set end point
+                    endPoint = e.latlng;
+                    if (tempMarker) map.removeLayer(tempMarker);
+                    tempMarker = L.marker(endPoint, {
+                        icon: L.divIcon({
+                            className: 'route-point-marker',
+                            html: '<i class="fas fa-map-marker-alt" style="color: #f72585; font-size: 24px;"></i>',
+                            iconSize: [24, 24]
+                        }),
+                        zIndexOffset: 1000
+                    }).addTo(map)
+                    .bindPopup('End Point', {autoClose: false})
+                    .openPopup();
+                    
+                    // Create permanent markers
+                    startMarker = L.marker(startPoint, {
+                        icon: L.divIcon({
+                            className: 'route-point-marker',
+                            html: '<i class="fas fa-map-marker-alt" style="color: #4cc9f0; font-size: 24px;"></i>',
+                            iconSize: [24, 24]
+                        }),
+                        zIndexOffset: 1000
+                    }).addTo(map)
+                    .bindPopup('Start Point', {autoClose: false});
+                    
+                    endMarker = L.marker(endPoint, {
+                        icon: L.divIcon({
+                            className: 'route-point-marker',
+                            html: '<i class="fas fa-map-marker-alt" style="color: #f72585; font-size: 24px;"></i>',
+                            iconSize: [24, 24]
+                        }),
+                        zIndexOffset: 1000
+                    }).addTo(map)
+                    .bindPopup('End Point', {autoClose: false});
+                    
+                    // Store waypoints for route calculation
+                    routeWaypoints = [
+                        L.latLng(startPoint.lat, startPoint.lng),
+                        L.latLng(endPoint.lat, endPoint.lng)
+                    ];
+                    
+                    // Calculate route between points
+                    calculateRoute(routeWaypoints);
+                    
+                    // Remove click handler
+                    map.off('click', mapClickHandler);
+                    clickCount = 0;
+                    isRouteSet = true;
+                    document.getElementById('clearRouteBtn').disabled = false;
+                    document.getElementById('currentLocation').textContent = 'Route set! Click "Start Tracking" to begin';
+                    
+                    // Enable start tracking button
+                    document.getElementById('startTracking').disabled = false;
+                    
+                    // Close the modal
+                    Swal.close();
+                }
+            };
+            
+            map.on('click', mapClickHandler);
+            document.getElementById('currentLocation').textContent = 'Click on the map to set start point';
+        }
+        
+        // Set current location as start point in manual form
+        function setCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        document.getElementById('startLat').value = lat.toFixed(6);
+                        document.getElementById('startLng').value = lng.toFixed(6);
+                        
+                        // Try to reverse geocode to get address
+                        reverseGeocode(lat, lng, 'startAddress');
+                        
+                        showToast('Current location set as start point', 'success');
+                    },
+                    (error) => {
+                        handlePositionError(error);
+                    },
+                    { enableHighAccuracy: true }
+                );
+            } else {
+                showToast('Geolocation is not supported by your browser', 'danger');
+            }
+        }
+        
+        // Reverse geocode coordinates to get address
+        function reverseGeocode(lat, lng, addressFieldId) {
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.display_name) {
+                        document.getElementById(addressFieldId).value = data.display_name;
+                    }
+                })
+                .catch(error => {
+                    console.error('Reverse geocoding error:', error);
+                });
+        }
+        
+        // Geocode address to get coordinates
+        function geocodeAddress(address, callback) {
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        callback({
+                            lat: parseFloat(data[0].lat),
+                            lng: parseFloat(data[0].lon)
+                        });
+                    } else {
+                        showToast('Address not found. Please try a different address or use coordinates.', 'warning');
+                    }
+                })
+                .catch(error => {
+                    console.error('Geocoding error:', error);
+                    showToast('Error looking up address. Please try again.', 'danger');
+                });
+        }
+        
+        // Set route manually using addresses or coordinates
+        function setManualRoute() {
+            // Get values from form
+            const startAddress = document.getElementById('startAddress').value;
+            const startLat = parseFloat(document.getElementById('startLat').value);
+            const startLng = parseFloat(document.getElementById('startLng').value);
+            
+            const endAddress = document.getElementById('endAddress').value;
+            const endLat = parseFloat(document.getElementById('endLat').value);
+            const endLng = parseFloat(document.getElementById('endLng').value);
+            
+            // Validate inputs
+            if ((!startAddress && (isNaN(startLat) || isNaN(startLng))) || 
+                (!endAddress && (isNaN(endLat) || isNaN(endLng)))) {
+                showToast('Please provide either addresses or valid coordinates for both points', 'warning');
+                return;
+            }
+            
+            // Clear any existing route
+            clearRoute();
+            
+            // Function to process start point
+            const processStartPoint = (callback) => {
+                if (startAddress) {
+                    geocodeAddress(startAddress, (coords) => {
+                        callback(coords);
+                    });
+                } else {
+                    callback({ lat: startLat, lng: startLng });
+                }
+            };
+            
+            // Function to process end point
+            const processEndPoint = (callback) => {
+                if (endAddress) {
+                    geocodeAddress(endAddress, (coords) => {
+                        callback(coords);
+                    });
+                } else {
+                    callback({ lat: endLat, lng: endLng });
+                }
+            };
+            
+            // Process both points
+            processStartPoint((startCoords) => {
+                processEndPoint((endCoords) => {
+                    // Create markers
+                    startMarker = L.marker([startCoords.lat, startCoords.lng], {
+                        icon: L.divIcon({
+                            className: 'route-point-marker',
+                            html: '<i class="fas fa-map-marker-alt" style="color: #4cc9f0; font-size: 24px;"></i>',
+                            iconSize: [24, 24]
+                        }),
+                        zIndexOffset: 1000
+                    }).addTo(map)
+                    .bindPopup('Start Point', {autoClose: false})
+                    .openPopup();
+                    
+                    endMarker = L.marker([endCoords.lat, endCoords.lng], {
+                        icon: L.divIcon({
+                            className: 'route-point-marker',
+                            html: '<i class="fas fa-map-marker-alt" style="color: #f72585; font-size: 24px;"></i>',
+                            iconSize: [24, 24]
+                        }),
+                        zIndexOffset: 1000
+                    }).addTo(map)
+                    .bindPopup('End Point', {autoClose: false});
+                    
+                    // Store waypoints for route calculation
+                    routeWaypoints = [
+                        L.latLng(startCoords.lat, startCoords.lng),
+                        L.latLng(endCoords.lat, endCoords.lng)
+                    ];
+                    
+                    // Calculate route between points
+                    calculateRoute(routeWaypoints);
+                    
+                    isRouteSet = true;
+                    document.getElementById('clearRouteBtn').disabled = false;
+                    document.getElementById('currentLocation').textContent = 'Route set! Click "Start Tracking" to begin';
+                    
+                    // Enable start tracking button
+                    document.getElementById('startTracking').disabled = false;
+                    
+                    // Close the modal
+                    Swal.close();
+                });
+            });
+        }
+        
+        // Calculate route between two points using OSRM
+        function calculateRoute(waypoints) {
+            if (routeControl) {
+                map.removeControl(routeControl);
+            }
+            
+            routeControl = L.Routing.control({
+                waypoints: waypoints,
+                routeWhileDragging: false,
+                show: false,
+                addWaypoints: false,
+                draggableWaypoints: false,
+                fitSelectedRoutes: true,
+                lineOptions: {
+                    styles: [{color: '#4361ee', opacity: 0.7, weight: 5}]
+                },
+                createMarker: function() { return null; } // Disable default markers
+            }).addTo(map);
+            
+            // Zoom to show the entire route
+            const bounds = L.latLngBounds(waypoints);
+            map.fitBounds(bounds, {padding: [50, 50]});
+            
+            // Handle route calculation errors
+            routeControl.on('routingerror', function(e) {
+                console.error('Routing error:', e.error);
+                showToast('Could not calculate route. Please try different points.', 'danger');
+                clearRoute();
+            });
+        }
+        
+        // Clear the current route
+        function clearRoute() {
+            if (routeControl) {
+                map.removeControl(routeControl);
+                routeControl = null;
+            }
+            if (startMarker) {
+                map.removeLayer(startMarker);
+                startMarker = null;
+            }
+            if (endMarker) {
+                map.removeLayer(endMarker);
+                endMarker = null;
+            }
+            isRouteSet = false;
+            routeWaypoints = [];
+            document.getElementById('clearRouteBtn').disabled = true;
+            document.getElementById('currentLocation').textContent = 'Click "Set Route" to plan your walk';
+            document.getElementById('startTracking').disabled = true;
+        }
+        
+        // Start tracking steps and location
+        function startTracking() {
+            if (isTracking) return;
+            
+            if (!isRouteSet) {
+                showToast('Please set your route first', 'warning');
+                return;
+            }
+            
+            if (!deviceConnected) {
+                showToast('Please connect a device first', 'warning');
+                return;
+            }
+            
+            document.getElementById('startTrackingText').style.display = 'none';
+            document.getElementById('startTrackingLoader').style.display = 'inline-block';
+            document.getElementById('startTracking').disabled = true;
+            
+            // Request location permissions
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        // Success callback
+                        trackingStartTime = new Date();
+                        isTracking = true;
+                        document.getElementById('trackingStatus').textContent = 'Tracking';
+                        document.getElementById('trackingStatus').className = 'badge bg-success';
+                        document.getElementById('startTrackingText').style.display = 'inline-block';
+                        document.getElementById('startTrackingLoader').style.display = 'none';
+                        document.getElementById('startTracking').disabled = true;
+                        document.getElementById('stopTracking').disabled = false;
+                        
+                        // Reset counters
+                        stepCount = 0;
+                        totalDistance = 0;
+                        walkingPath.setLatLngs([]);
+                        
+                        // Start watching position
+                        watchId = navigator.geolocation.watchPosition(
+                            handlePositionUpdate,
+                            handlePositionError,
+                            { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+                        );
+                        
+                        // Start step counter
+                        stepInterval = setInterval(updateStepCount, 1000);
+                        
+                        // Start heart rate simulation
+                        startHeartRateSimulation();
+                        
+                        // Speak feedback if enabled
+                        if (settings.voiceEnabled) {
+                            speak("Tracking started. Let's walk!");
+                        }
+                        
+                        showToast('Tracking started successfully', 'success');
+                    },
+                    (error) => {
+                        // Error callback
+                        handlePositionError(error);
+                        document.getElementById('startTrackingText').style.display = 'inline-block';
+                        document.getElementById('startTrackingLoader').style.display = 'none';
+                        document.getElementById('startTracking').disabled = false;
+                    },
+                    { enableHighAccuracy: true }
+                );
+            } else {
+                showToast('Geolocation is not supported by your browser', 'danger');
+                document.getElementById('startTrackingText').style.display = 'inline-block';
+                document.getElementById('startTrackingLoader').style.display = 'none';
+            }
+        }
+        
+        // Handle position updates from geolocation API
+        function handlePositionUpdate(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+            const altitude = position.coords.altitude;
+            const speed = position.coords.speed; // in m/s
+            const heading = position.coords.heading;
+            const timestamp = new Date(position.timestamp);
+            
+            // Update GPS accuracy display
+            document.getElementById('gpsAccuracy').textContent = `GPS: ${Math.round(accuracy)}m`;
+            
+            // Update current position marker
+            currentPositionMarker.setLatLng([lat, lng]);
+            
+            // Add to walking path
+            walkingPath.addLatLng([lat, lng]);
+            
+            // Center map on current position (first time)
+            if (walkingPath.getLatLngs().length === 1) {
+                map.setView([lat, lng], 16);
+            }
+            
+            // Calculate distance from last position
+            if (lastPosition) {
+                const distance = calculateDistance(
+                    lastPosition.lat, 
+                    lastPosition.lng, 
+                    lat, 
+                    lng
+                );
+                
+                totalDistance += distance;
+                
+                // Update step count based on stride length (steps = distance / stride length)
+                const strideLengthKm = settings.strideLength / 100000; // convert cm to km
+                stepCount = Math.round(totalDistance / strideLengthKm);
+                
+                // Update speed calculation (convert m/s to km/h)
+                const speedKmh = speed ? (speed * 3.6).toFixed(1) : '0.0';
+                document.getElementById('walkSpeed').textContent = speedKmh;
+                
+                // Update path color based on speed
+                if (speed) {
+                    enhancePathVisualization(speed * 3.6);
+                }
+            }
+            
+            // Update last position
+            lastPosition = {
+                lat: lat,
+                lng: lng,
+                timestamp: position.timestamp,
+                speed: speed,
+                heading: heading,
+                altitude: altitude
+            };
+            
+            // Update location display
+            updateLocationDisplay(lat, lng, accuracy);
+            
+            // Update display
+            updateDisplay();
+        }
+        
+        // Calculate distance between two coordinates in kilometers (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the earth in km
+            const dLat = deg2rad(lat2 - lat1);
+            const dLon = deg2rad(lon2 - lon1);
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c; // Distance in km
+        }
+        
+        function deg2rad(deg) {
+            return deg * (Math.PI/180);
+        }
+        
+        // Update all display elements
+        function updateDisplay() {
+            // Update step counter with animation when steps increase
+            const stepElement = document.getElementById('stepCount');
+            const currentSteps = parseInt(stepElement.textContent.replace(/,/g, ''));
+            if (stepCount > currentSteps) {
+                stepElement.classList.add('pulse');
+                setTimeout(() => stepElement.classList.remove('pulse'), 1500);
+            }
+            stepElement.textContent = stepCount.toLocaleString();
+            
+            // Update progress bar
+            const progress = Math.min(100, (stepCount / settings.stepGoal) * 100);
+            const progressBar = document.getElementById('stepProgress');
+            progressBar.style.width = `${progress}%`;
+            
+            // Update progress bar color based on percentage
+            if (progress >= 100) {
+                progressBar.className = 'progress-bar bg-success pulse';
+                if (settings.voiceEnabled && progress === 100) {
+                    speak("Congratulations! You've reached your daily step goal!");
+                }
+            } else if (progress >= 75) {
+                progressBar.className = 'progress-bar bg-success';
+            } else if (progress >= 50) {
+                progressBar.className = 'progress-bar bg-warning';
+            } else {
+                progressBar.className = 'progress-bar bg-danger';
+            }
+            
+            // Update distance
+            document.getElementById('walkDistance').textContent = totalDistance.toFixed(2);
+            
+            // Update calories (MET value of 3.5 for walking)
+            const calories = totalDistance * settings.weight * 3.5;
+            document.getElementById('caloriesBurned').textContent = Math.round(calories);
+            
+            // Update time
+            if (trackingStartTime) {
+                const seconds = Math.floor((new Date() - trackingStartTime) / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                document.getElementById('walkTime').textContent = 
+                    `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+            }
+
+            // Update heart rate
+            document.getElementById('heartRate').textContent = currentHeartRate;
+            
+            // Update glucose impact (simulated based on steps)
+            const glucoseImpact = Math.max(0, 10 - Math.floor(stepCount / 1000));
+            document.getElementById('glucoseImpact').textContent = `-${glucoseImpact}%`;
+            
+            // Update gauge if we have glucose readings
+            if (glucoseReadings.length > 0) {
+                updateGlucoseGauge();
+            }
+        }
+        
+        // Update glucose gauge visualization
+        function updateGlucoseGauge() {
+            const lastReading = glucoseReadings[glucoseReadings.length - 1];
+            const glucoseValue = lastReading.value;
+            
+            // Update gauge value
+            document.getElementById('gaugeValue').textContent = glucoseValue;
+            
+            // Calculate needle position (0-180 degrees, where 0 is left, 90 is center, 180 is right)
+            // Normal range: 70-180 mg/dL
+            let needleAngle = 0;
+            if (glucoseValue <= 70) {
+                needleAngle = 0; // Far left for low values
+            } else if (glucoseValue >= 300) {
+                needleAngle = 180; // Far right for high values
+            } else {
+                // Map glucose value to angle (70-180 mg/dL maps to 30-150 degrees)
+                needleAngle = 30 + ((glucoseValue - 70) / (300 - 70)) * 150;
+            }
+            
+            // Set needle position
+            document.getElementById('gaugeNeedle').style.transform = `rotate(${needleAngle}deg)`;
+            
+            // Check if we've reached the target glucose level
+            checkTargetGlucoseReached();
+        }
+        
+        // Check if target glucose level has been reached
+        function checkTargetGlucoseReached() {
+            if (glucoseReadings.length === 0) return;
+            
+            const lastReading = glucoseReadings[glucoseReadings.length - 1];
+            const currentGlucose = lastReading.value;
+            
+            // If we're within 5% of the target glucose level
+            if (Math.abs(currentGlucose - targetGlucose) <= (targetGlucose * 0.05)) {
+                if (isTracking) {
+                    stopTracking();
+                    speak(`Congratulations! You've reached your target glucose level of ${targetGlucose}. Your current level is ${currentGlucose}.`);
+                    showToast(`Target glucose level reached! Current: ${currentGlucose}, Target: ${targetGlucose}`, 'success');
+                }
+            }
+        }
+        
+        // Update location display with address if possible
+        function updateLocationDisplay(lat, lng, accuracy) {
+            // For OpenStreetMap, we'll just show coordinates
+            document.getElementById('currentLocation').textContent = 
+                `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)} (Accuracy: ${Math.round(accuracy)}m)`;
+        }
+        
+        // Stop tracking
+        function stopTracking() {
+            if (isTracking) {
+                isTracking = false;
+                clearInterval(stepInterval);
+                clearInterval(heartRateInterval);
+                if (watchId) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null;
+                }
+                document.getElementById('startTracking').disabled = false;
+                document.getElementById('stopTracking').disabled = true;
+                document.getElementById('trackingStatus').textContent = 'Not Tracking';
+                document.getElementById('trackingStatus').className = 'badge bg-secondary';
+                
+                // Save this walk to history
+                saveWalkToHistory();
+                
+                // Speak feedback if enabled
+                if (settings.voiceEnabled) {
+                    speakStepCount();
+                }
+
+                // Calculate environmental impact
+                calculateEnvironmentalImpact();
+                
+                showToast('Workout saved to history', 'success');
+            }
+        }
+        
+        // Start heart rate simulation
+        function startHeartRateSimulation() {
+            currentHeartRate = 72; // Resting heart rate
+            heartRateInterval = setInterval(() => {
+                // Simulate heart rate based on activity
+                const speed = parseFloat(document.getElementById('walkSpeed').textContent) || 0;
+                const baseHR = 60;
+                const activityHR = Math.min(180, baseHR + (speed * 3) + Math.random() * 10);
+                
+                // Smooth transition
+                if (currentHeartRate < activityHR) {
+                    currentHeartRate = Math.min(activityHR, currentHeartRate + 1);
+                } else if (currentHeartRate > activityHR) {
+                    currentHeartRate = Math.max(activityHR, currentHeartRate - 1);
+                }
+                
+                document.getElementById('heartRate').textContent = currentHeartRate;
+            }, 3000);
+        }
+        
+        // Enhance path visualization based on speed
+        function enhancePathVisualization(speedKmh) {
+            walkingPath.setStyle({
+                color: speedKmh > 6 ? '#f72585' : speedKmh > 3 ? '#4361ee' : '#4cc9f0'
+            });
+        }
+        
+        // Calculate environmental impact
+        function calculateEnvironmentalImpact() {
+            const kmWalked = parseFloat(document.getElementById('walkDistance').textContent);
+            // Average car emits ~0.2kg CO2 per km
+            const co2Saved = (kmWalked * 0.2).toFixed(2);
+            
+            const impactDiv = document.createElement('div');
+            impactDiv.className = 'environment-impact mt-3 p-3 rounded';
+            impactDiv.style.background = 'linear-gradient(135deg, #e6f7ff, #f0f9ff)';
+            impactDiv.style.borderLeft = '4px solid var(--success)';
+            impactDiv.innerHTML = `
+                <h5 class="d-flex align-items-center">
+                    <i class="fas fa-leaf me-2" style="color: var(--success);"></i> 
+                    Environmental Impact
+                </h5>
+                <p class="mb-1">You've saved approximately <strong>${co2Saved} kg</strong> of CO₂ by walking!</p>
+                <small class="text-muted">Equivalent to charging ${Math.round(co2Saved * 50)} smartphones</small>
+            `;
+            
+            document.getElementById('environmentImpactContainer').appendChild(impactDiv);
+        }
+        
+        // Speak the current step count with glucose information
+        function speakStepCount() {
+            if (!('speechSynthesis' in window) || !settings.voiceEnabled) return;
+            
+            const progressPercent = Math.round((stepCount / settings.stepGoal) * 100);
+            const glucoseValue = document.getElementById('currentGlucose').textContent;
+            let message;
+            
+            if (stepCount === 0) {
+                message = "You haven't taken any steps yet. Let's get moving to help control your blood sugar!";
+            } else if (progressPercent < 30) {
+                message = `You've taken ${stepCount} steps. That's ${progressPercent} percent of your goal. Keep going to help manage your diabetes!`;
+            } else if (progressPercent < 70) {
+                message = `Great job! You've taken ${stepCount} steps, which is ${progressPercent} percent of your daily goal.`;
+            } else if (progressPercent < 100) {
+                message = `Awesome! You're at ${stepCount} steps, that's ${progressPercent} percent. Almost there!`;
+            } else {
+                message = `Congratulations! You've reached your goal with ${stepCount} steps. You're amazing!`;
+            }
+            
+            // Add glucose information if available
+            if (glucoseValue !== '--') {
+                message += ` Your current glucose level is ${glucoseValue} milligrams per deciliter.`;
+                
+                const glucoseStatus = document.getElementById('glucoseStatus').textContent;
+                if (glucoseStatus === 'High') {
+                    message += " Consider taking a walk to help lower it.";
+                } else if (glucoseStatus === 'Low') {
+                    message += " Be careful and consider having a snack if needed.";
+                }
+            }
+            
+            // Add mood information if available
+            if (currentMood) {
+                const moodMap = {
+                    'very_sad': 'very sad',
+                    'sad': 'sad',
+                    'neutral': 'neutral',
+                    'happy': 'happy',
+                    'very_happy': 'very happy'
+                };
+                
+                message += ` Your current mood is ${moodMap[currentMood]}.`;
+                
+                // Add mood insights based on glucose levels
+                if (glucoseValue !== '--') {
+                    const glucoseNum = parseInt(glucoseValue);
+                    if (glucoseNum > 180 && currentMood !== 'very_sad' && currentMood !== 'sad') {
+                        message += " High glucose levels can sometimes affect mood. You might feel better after your glucose stabilizes.";
+                    } else if (glucoseNum < 70 && currentMood !== 'very_happy' && currentMood !== 'happy') {
+                        message += " Low glucose levels can affect your mood. You might feel better after having a snack.";
+                    }
+                }
+            }
+            
+            speak(message);
+        }
+        
+        // Text-to-speech function with voice selection
+        function speak(text) {
+            if ('speechSynthesis' in window && settings.voiceEnabled) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance();
+                utterance.text = text;
+                utterance.rate = 0.9;
+                utterance.pitch = selectedVoice === 'female' ? 1.1 : 0.9;
+                utterance.volume = 1;
+                
+                // Try to use a pleasant voice
+                const voices = window.speechSynthesis.getVoices();
+                let preferredVoice = null;
+                
+                if (selectedVoice === 'female') {
+                    preferredVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Karen'));
+                } else {
+                    preferredVoice = voices.find(v => v.name.includes('Male') || v.name.includes('Daniel') || v.name.includes('Alex'));
+                }
+                
+                if (preferredVoice) {
+                    utterance.voice = preferredVoice;
+                }
+                
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+        
+        // Save current walk to history
+        function saveWalkToHistory() {
+            if (stepCount > 0) {
+                const history = JSON.parse(localStorage.getItem('walkHistory') || '[]');
+                const now = new Date();
+                
+                // Get path data
+                const pathData = walkingPath.getLatLngs().map(ll => ({ 
+                    lat: ll.lat, 
+                    lng: ll.lng 
+                }));
+                
+                const glucoseBefore = localStorage.getItem('lastGlucoseReading');
+                
+                // Simulate glucose impact from walking
+                const glucoseImpact = Math.max(0, 20 - Math.floor(stepCount / 500));
+                const glucoseAfter = glucoseBefore ? Math.max(70, parseInt(glucoseBefore) - glucoseImpact) : '--';
+                
+                const walkData = {
+                    id: Date.now(),
+                    date: now.toISOString(),
+                    steps: stepCount,
+                    distance: parseFloat(totalDistance.toFixed(2)),
+                    glucoseBefore: glucoseBefore || '--',
+                    glucoseAfter: glucoseAfter,
+                    impact: glucoseImpact,
+                    moodBefore: localStorage.getItem('lastMood') || '--',
+                    moodAfter: currentMood || '--',
+                    time: Math.floor((new Date() - trackingStartTime) / 1000),
+                    path: pathData,
+                    route: routeWaypoints.map(wp => ({ lat: wp.lat, lng: wp.lng }))
+                };
+                
+                history.unshift(walkData);
+                localStorage.setItem('walkHistory', JSON.stringify(history));
+                
+                // Update history display
+                updateHistoryDisplay();
+            }
+        }
+        
+        // Update history table display
+        function updateHistoryDisplay() {
+            const history = JSON.parse(localStorage.getItem('walkHistory') || '[]');
+            const historyTable = document.getElementById('historyTable');
+            historyTable.innerHTML = '';
+            
+            if (history.length === 0) {
+                historyTable.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-4">
+                            <i class="fas fa-history fa-2x mb-3" style="color: var(--light-gray);"></i>
+                            <p class="mb-0">No activity history yet</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            history.forEach(walk => {
+                const date = new Date(walk.date);
+                const row = document.createElement('tr');
+                row.className = 'align-middle';
+                
+                // Format time
+                const minutes = Math.floor(walk.time / 60);
+                const seconds = walk.time % 60;
+                const timeString = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                // Mood change indicator
+                let moodChange = '--';
+                if (walk.moodBefore !== '--' && walk.moodAfter !== '--') {
+                    const moodValues = {
+                        'very_sad': 1,
+                        'sad': 2,
+                        'neutral': 3,
+                        'happy': 4,
+                        'very_happy': 5
+                    };
+                    
+                    const beforeVal = moodValues[walk.moodBefore];
+                    const afterVal = moodValues[walk.moodAfter];
+                    
+                    if (afterVal > beforeVal) {
+                        moodChange = '<i class="fas fa-arrow-up text-success"></i> Improved';
+                    } else if (afterVal < beforeVal) {
+                        moodChange = '<i class="fas fa-arrow-down text-danger"></i> Worsened';
+                    } else {
+                        moodChange = '<i class="fas fa-equals text-muted"></i> No change';
+                    }
+                }
+                
+                row.innerHTML = `
+                    <td>
+                        <div class="fw-bold">${date.toLocaleDateString()}</div>
+                        <small class="text-muted">${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                    </td>
+                    <td class="fw-bold">${walk.steps.toLocaleString()}</td>
+                    <td>${walk.distance.toFixed(2)} km</td>
+                    <td>${walk.glucoseBefore}</td>
+                    <td>${walk.glucoseAfter}</td>
+                    <td>${walk.impact > 0 ? '-' + walk.impact + ' mg/dL' : '--'}</td>
+                    <td>${moodChange}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary view-path" data-id="${walk.id}" data-bs-toggle="tooltip" title="View path">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-walk ms-1" data-id="${walk.id}" data-bs-toggle="tooltip" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                historyTable.appendChild(row);
+            });
+            
+            // Add event listeners to view path buttons
+            document.querySelectorAll('.view-path').forEach(button => {
+                button.addEventListener('click', function() {
+                    const walkId = parseInt(this.getAttribute('data-id'));
+                    const history = JSON.parse(localStorage.getItem('walkHistory') || '[]');
+                    const walk = history.find(w => w.id === walkId);
+                    
+                    if (walk) {
+                        showPathOnMap(walk.path, walk.route);
+                        showToast('Showing walk path on map', 'info');
+                    }
+                });
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-walk').forEach(button => {
+                button.addEventListener('click', function() {
+                    const walkId = parseInt(this.getAttribute('data-id'));
+                    deleteWalk(walkId);
+                });
+            });
+            
+            // Reinitialize tooltips for new elements
+            initTooltips();
+        }
+        
+        // Delete a walk from history
+        function deleteWalk(walkId) {
+            Swal.fire({
+                title: 'Delete this activity?',
+                text: "You won't be able to recover this walk data!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                backdrop: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const history = JSON.parse(localStorage.getItem('walkHistory') || '[]');
+                    const updatedHistory = history.filter(w => w.id !== walkId);
+                    localStorage.setItem('walkHistory', JSON.stringify(updatedHistory));
+                    updateHistoryDisplay();
+                    showToast('Activity deleted', 'success');
+                }
+            });
+        }
+        
+        // Clear all history
+        function clearAllHistory() {
+            Swal.fire({
+                title: 'Clear all history?',
+                text: "This will permanently delete all your activity records!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, clear all!',
+                cancelButtonText: 'Cancel',
+                backdrop: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('walkHistory');
+                    updateHistoryDisplay();
+                    showToast('All history cleared', 'success');
+                }
+            });
+        }
+        
+        // Show a saved path on the map
+        function showPathOnMap(path, route) {
+            if (!path || path.length === 0) return;
+            
+            // Switch to dashboard view
+            document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+            document.getElementById('dashboard').style.display = 'block';
+            
+            // Clear current path
+            walkingPath.setLatLngs([]);
+            
+            // Add all points to path
+            const latLngs = path.map(p => [p.lat, p.lng]);
+            walkingPath.setLatLngs(latLngs);
+            
+            // Add start and end markers
+            L.marker(latLngs[0]).addTo(map)
+                .bindPopup('Start point')
+                .openPopup();
+            
+            L.marker(latLngs[latLngs.length - 1]).addTo(map)
+                .bindPopup('End point');
+            
+            // Show the original route if available
+            if (route && route.length >= 2) {
+                calculateRoute([
+                    L.latLng(route[0].lat, route[0].lng),
+                    L.latLng(route[1].lat, route[1].lng)
+                ]);
+            }
+            
+            // Center map on path
+            map.fitBounds(walkingPath.getBounds());
+        }
+        
+        // Export history as CSV
+        function exportHistory() {
+            const history = JSON.parse(localStorage.getItem('walkHistory') || '[]');
+            if (history.length === 0) {
+                showToast('No history to export', 'warning');
+                return;
+            }
+            
+            let csv = 'Date,Steps,Distance (km),Glucose Before,Glucose After,Impact (mg/dL),Mood Before,Mood After,Time (min:sec)\n';
+            
+            history.forEach(walk => {
+                const date = new Date(walk.date);
+                const minutes = Math.floor(walk.time / 60);
+                const seconds = walk.time % 60;
+                const timeString = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                csv += `"${date.toLocaleString()}","${walk.steps}","${walk.distance.toFixed(2)}","${walk.glucoseBefore}","${walk.glucoseAfter}","${walk.impact || 0}","${walk.moodBefore}","${walk.moodAfter}","${timeString}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `glucostep_history_${new Date().toISOString().slice(0,10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('History exported as CSV', 'success');
+        }
+        
+        // Add glucose reading
+        function addGlucoseReading() {
+            const glucoseValue = document.getElementById('glucoseInput').value;
+            if (!glucoseValue) {
+                showToast('Please enter a glucose value', 'warning');
+                return;
+            }
+            
+            const value = parseInt(glucoseValue);
+            if (value < 20 || value > 500) {
+                showToast('Please enter a valid glucose value (20-500 mg/dL)', 'warning');
+                return;
+            }
+            
+            const now = new Date();
+            const reading = {
+                value: value,
+                timestamp: now.toISOString(),
+                time: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            };
+            
+            // Add to readings array
+            glucoseReadings.push(reading);
+            
+            // Save to localStorage
+            localStorage.setItem('glucoseReadings', JSON.stringify(glucoseReadings));
+            localStorage.setItem('lastGlucoseReading', value);
+            
+            // Update display
+            updateGlucoseDisplay();
+            
+            // Clear input
+            document.getElementById('glucoseInput').value = '';
+            
+            showToast('Glucose reading added', 'success');
+            
+            // Speak glucose status if enabled
+            if (settings.voiceEnabled) {
+                let statusMessage = `Your glucose level is ${value} milligrams per deciliter. `;
+                
+                if (value < 70) {
+                    statusMessage += "This is low. Consider having a snack.";
+                } else if (value > 180) {
+                    statusMessage += "This is high. Consider taking a walk or adjusting your medication as directed by your doctor.";
+                } else {
+                    statusMessage += "This is within the normal range. Good job!";
+                }
+                
+                speak(statusMessage);
+            }
+        }
+        
+        // Update glucose display
+        function updateGlucoseDisplay() {
+            if (glucoseReadings.length === 0) return;
+            
+            const lastReading = glucoseReadings[glucoseReadings.length - 1];
+            document.getElementById('currentGlucose').textContent = lastReading.value;
+            
+            // Set status
+            let status = 'Normal';
+            let statusClass = 'status-normal';
+            
+            if (lastReading.value < 70) {
+                status = 'Low';
+                statusClass = 'status-low';
+            } else if (lastReading.value > 180) {
+                status = 'High';
+                statusClass = 'status-high';
+            }
+            
+            document.getElementById('glucoseStatus').textContent = status;
+            document.getElementById('glucoseStatus').className = `glucose-status ${statusClass}`;
+            
+            // Update glucose gauge
+            updateGlucoseGauge();
+            
+            // Update glucose charts
+            updateGlucoseCharts();
+        }
+        
+        // Update glucose charts
+        function updateGlucoseCharts() {
+            if (glucoseReadings.length === 0) return;
+            
+            // Update mini glucose chart
+            const lastReadings = glucoseReadings.slice(-7);
+            const ctx = document.getElementById('glucoseChart').getContext('2d');
+            
+            if (glucoseChart) {
+                glucoseChart.destroy();
+            }
+            
+            glucoseChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: lastReadings.map(r => r.time),
+                    datasets: [{
+                        label: 'Glucose (mg/dL)',
+                        data: lastReadings.map(r => r.value),
+                        borderColor: '#1a73e8',
+                        backgroundColor: 'rgba(26, 115, 232, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            suggestedMin: 60,
+                            suggestedMax: 200
+                        }
+                    }
+                }
+            });
+            
+            // Update glucose trends chart if on glucose page
+            if (document.getElementById('glucoseTrendChart')) {
+                updateGlucoseTrendsChart();
+            }
+        }
+        
+        // Update glucose trends chart
+        function updateGlucoseTrendsChart() {
+            if (glucoseReadings.length === 0) return;
+            
+            const ctx = document.getElementById('glucoseTrendChart').getContext('2d');
+            
+            if (glucoseTrendChart) {
+                glucoseTrendChart.destroy();
+            }
+            
+            // Group readings by date
+            const readingsByDate = {};
+            glucoseReadings.forEach(reading => {
+                const date = new Date(reading.timestamp).toLocaleDateString();
+                if (!readingsByDate[date]) {
+                    readingsByDate[date] = [];
+                }
+                readingsByDate[date].push(reading.value);
+            });
+            
+            // Calculate averages
+            const dates = Object.keys(readingsByDate);
+            const averages = dates.map(date => {
+                const values = readingsByDate[date];
+                return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+            });
+            
+            glucoseTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Average Glucose (mg/dL)',
+                        data: averages,
+                        borderColor: '#1a73e8',
+                        backgroundColor: 'rgba(26, 115, 232, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            suggestedMin: 60,
+                            suggestedMax: 200
+                        }
+                    }
+                }
+            });
+            
+            // Update stats
+            const allValues = glucoseReadings.map(r => r.value);
+            const avgGlucose = Math.round(allValues.reduce((a, b) => a + b, 0) / allValues.length);
+            const minGlucose = Math.min(...allValues);
+            const maxGlucose = Math.max(...allValues);
+            const timeInRange = Math.round((allValues.filter(v => v >= 70 && v <= 180).length / allValues.length) * 100);
+            
+            document.getElementById('avgGlucose').textContent = `${avgGlucose} mg/dL`;
+            document.getElementById('glucoseRange').textContent = `${minGlucose}-${maxGlucose}`;
+            document.getElementById('timeInRange').textContent = `${timeInRange}%`;
+        }
+        
+        // Connect to device (simulated)
+        function connectDevice() {
+            // Show device selection modal
+            const modal = new bootstrap.Modal(document.getElementById('deviceConnectionModal'));
+            modal.show();
+        }
+        
+        // Confirm device connection
+        function confirmDeviceConnection() {
+            if (!selectedDeviceType) {
+                showToast('Please select a device type', 'warning');
+                return;
+            }
+            
+            document.getElementById('connectDeviceBtn').disabled = true;
+            document.getElementById('connectDeviceBtn').innerHTML = '<span class="spinner"></span> Connecting...';
+            
+            // Simulate connection process
+            setTimeout(() => {
+                deviceConnected = true;
+                
+                // Update device status based on selected device type
+                let deviceIcon = 'fa-mobile-alt';
+                let deviceName = 'Phone';
+                
+                if (selectedDeviceType === 'watch') {
+                    deviceIcon = 'fa-clock';
+                    deviceName = 'Smartwatch';
+                } else if (selectedDeviceType === 'cgm') {
+                    deviceIcon = 'fa-heartbeat';
+                    deviceName = 'CGM Device';
+                }
+                
+                document.getElementById('deviceStatus').className = 'device-status connected';
+                document.getElementById('deviceStatus').innerHTML = `
+                    <div class="device-icon">
+                        <i class="fas ${deviceIcon}"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">${deviceName} Connected</h5>
+                        <p class="mb-0 small">Your device is now connected for tracking</p>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary ms-auto" id="disconnectDeviceBtn">Disconnect</button>
+                `;
+                
+                document.getElementById('disconnectDeviceBtn').addEventListener('click', disconnectDevice);
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deviceConnectionModal'));
+                modal.hide();
+                
+                showToast('Device connected successfully', 'success');
+                
+                // Enable start tracking button if route is set
+                if (isRouteSet) {
+                    document.getElementById('startTracking').disabled = false;
+                }
+            }, 2000);
+        }
+        
+        // Disconnect device
+        function disconnectDevice() {
+            deviceConnected = false;
+            document.getElementById('deviceStatus').className = 'device-status disconnected';
+            document.getElementById('deviceStatus').innerHTML = `
+                <div class="device-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div>
+                    <h5 class="mb-1">Device Not Connected</h5>
+                    <p class="mb-0 small">Connect to your phone or smartwatch to track steps</p>
+                </div>
+                <button class="btn btn-sm btn-primary ms-auto" id="connectDeviceBtn">Connect Device</button>
+            `;
+            
+            document.getElementById('connectDeviceBtn').addEventListener('click', connectDevice);
+            document.getElementById('startTracking').disabled = true;
+            
+            showToast('Device disconnected', 'info');
+        }
+        
+        // Load settings from localStorage
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('glucostepSettings');
+            if (savedSettings) {
+                settings = { ...settings, ...JSON.parse(savedSettings) };
+                
+                // Update form fields
+                document.getElementById('stepGoalInput').value = settings.stepGoal;
+                document.getElementById('weightInput').value = settings.weight;
+                document.getElementById('strideLengthInput').value = settings.strideLength;
+                document.getElementById('voiceEnabled').checked = settings.voiceEnabled;
+                document.getElementById('glucoseReminders').checked = settings.glucoseReminders;
+                document.getElementById('inactivityNotification').checked = settings.inactivityNotification;
+                document.getElementById('diabetesType').value = settings.diabetesType;
+                
+                // Update step goal display
+                document.getElementById('stepGoal').textContent = settings.stepGoal.toLocaleString();
+            }
+            
+            // Load glucose readings
+            const savedReadings = localStorage.getItem('glucoseReadings');
+            if (savedReadings) {
+                glucoseReadings = JSON.parse(savedReadings);
+                updateGlucoseDisplay();
+            }
+            
+            // Load voice preference
+            const savedVoice = localStorage.getItem('selectedVoice');
+            if (savedVoice) {
+                selectedVoice = savedVoice;
+                document.querySelectorAll('.voice-option').forEach(option => {
+                    option.classList.remove('selected');
+                    if (option.getAttribute('data-voice') === savedVoice) {
+                        option.classList.add('selected');
+                    }
+                });
+            }
+            
+            // Load target glucose
+            const savedTargetGlucose = localStorage.getItem('targetGlucose');
+            if (savedTargetGlucose) {
+                targetGlucose = parseInt(savedTargetGlucose);
+                document.getElementById('targetGlucose').value = targetGlucose;
+            }
+            
+            // Load theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                currentTheme = savedTheme;
+                document.getElementById('themeToggle').checked = currentTheme === 'dark';
+                applyTheme(currentTheme);
+            }
+        }
+        
+        // Save settings to localStorage
+        function saveSettings() {
+            settings.stepGoal = parseInt(document.getElementById('stepGoalInput').value) || 10000;
+            settings.weight = parseInt(document.getElementById('weightInput').value) || 70;
+            settings.strideLength = parseInt(document.getElementById('strideLengthInput').value) || 70;
+            settings.voiceEnabled = document.getElementById('voiceEnabled').checked;
+            settings.glucoseReminders = document.getElementById('glucoseReminders').checked;
+            settings.inactivityNotification = document.getElementById('inactivityNotification').checked;
+            settings.diabetesType = document.getElementById('diabetesType').value;
+            
+            localStorage.setItem('glucostepSettings', JSON.stringify(settings));
+            localStorage.setItem('selectedVoice', selectedVoice);
+            localStorage.setItem('targetGlucose', targetGlucose);
+            localStorage.setItem('theme', currentTheme);
+            
+            // Update step goal display
+            document.getElementById('stepGoal').textContent = settings.stepGoal.toLocaleString();
+            
+            showToast('Settings saved successfully', 'success');
+        }
+        
+        // Apply theme
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.body.classList.add('dark-mode');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                document.body.classList.remove('dark-mode');
+            }
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toastContainer = document.querySelector('.toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast show align-items-center text-white bg-${type} border-0`;
+            toast.role = 'alert';
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+        
+        // Handle geolocation errors
+        function handlePositionError(error) {
+            console.error('Geolocation error:', error);
+            
+            let errorMessage;
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = "Location access was denied. Please enable location services in your browser settings.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = "Location information is unavailable. Please check your network connection.";
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = "The request to get your location timed out. Please try again.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    errorMessage = "An unknown error occurred while getting your location.";
+                    break;
+            }
+            
+            document.getElementById('currentLocation').textContent = errorMessage;
+            document.getElementById('gpsAccuracy').textContent = 'GPS: Error';
+            showToast(errorMessage, 'danger');
+            
+            // Stop tracking if it was active
+            if (isTracking) {
+                stopTracking();
+            }
+        }
+        
+        // Set target glucose level
+        function setTargetGlucose() {
+            const targetValue = document.getElementById('targetGlucose').value;
+            if (!targetValue) {
+                showToast('Please enter a target glucose value', 'warning');
+                return;
+            }
+            
+            const value = parseInt(targetValue);
+            if (value < 70 || value > 180) {
+                showToast('Please enter a target glucose value between 70 and 180 mg/dL', 'warning');
+                return;
+            }
+            
+            targetGlucose = value;
+            localStorage.setItem('targetGlucose', targetGlucose);
+            
+            // Calculate required steps
+            calculateRequiredSteps();
+            
+            showToast(`Target glucose set to ${targetGlucose} mg/dL`, 'success');
+        }
+        
+        // Calculate required steps to reach target glucose
+        function calculateRequiredSteps() {
+            if (glucoseReadings.length === 0) {
+                showToast('Please add a glucose reading first', 'warning');
+                return;
+            }
+            
+            const currentGlucose = glucoseReadings[glucoseReadings.length - 1].value;
+            const glucoseDifference = currentGlucose - targetGlucose;
+            
+            if (glucoseDifference <= 0) {
+                showToast('Your glucose is already at or below target level', 'info');
+                return;
+            }
+            
+            // Simplified calculation: 100 steps ≈ 1 mg/dL reduction
+            const requiredSteps = Math.round(glucoseDifference * 100);
+            
+            Swal.fire({
+                title: 'Steps Required',
+                html: `Based on your current glucose level of <strong>${currentGlucose} mg/dL</strong> and target of <strong>${targetGlucose} mg/dL</strong>, you need to walk approximately <strong>${requiredSteps.toLocaleString()} steps</strong> to reach your target.`,
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+        }
+        
+        // Run digital twin simulation
+        function runSimulation() {
+            const currentGlucose = parseInt(document.getElementById('currentGlucoseInput').value);
+            const targetGlucose = parseInt(document.getElementById('targetGlucoseInput').value);
+            const insulinSensitivity = document.getElementById('insulinSensitivity').value;
+            const activityLevel = document.getElementById('activityLevel').value;
+            
+            if (currentGlucose <= targetGlucose) {
+                showToast('Current glucose is already at or below target level', 'info');
+                return;
+            }
+            
+            // Calculate required steps based on parameters
+            let stepsMultiplier = 100; // Base multiplier
+            
+            // Adjust based on insulin sensitivity
+            if (insulinSensitivity === 'low') {
+                stepsMultiplier = 120;
+            } else if (insulinSensitivity === 'high') {
+                stepsMultiplier = 80;
+            }
+            
+            // Adjust based on activity level
+            if (activityLevel === 'sedentary') {
+                stepsMultiplier *= 1.2;
+            } else if (activityLevel === 'light') {
+                stepsMultiplier *= 1.0;
+            } else if (activityLevel === 'moderate') {
+                stepsMultiplier *= 0.9;
+            } else if (activityLevel === 'active') {
+                stepsMultiplier *= 0.8;
+            } else if (activityLevel === 'very_active') {
+                stepsMultiplier *= 0.7;
+            }
+            
+            const glucoseDifference = currentGlucose - targetGlucose;
+            const requiredSteps = Math.round(glucoseDifference * stepsMultiplier);
+            const estimatedTime = Math.round(requiredSteps / 100); // Assuming 100 steps per minute
+            
+            // Update simulation results
+            document.getElementById('simulationResults').innerHTML = `
+                <div class="alert alert-success">
+                    <h5><i class="fas fa-check-circle me-2"></i> Simulation Complete</h5>
+                    <p>Based on your parameters, you need to walk approximately <strong>${requiredSteps.toLocaleString()} steps</strong> to reach your target glucose level.</p>
+                    <p>This would take about <strong>${estimatedTime} minutes</strong> at a moderate pace.</p>
+                </div>
+                <div class="mt-3">
+                    <h6>Parameters Used:</h6>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Current Glucose
+                            <span class="badge bg-primary rounded-pill">${currentGlucose} mg/dL</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Target Glucose
+                            <span class="badge bg-primary rounded-pill">${targetGlucose} mg/dL</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Insulin Sensitivity
+                            <span class="badge bg-info rounded-pill">${insulinSensitivity}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Activity Level
+                            <span class="badge bg-info rounded-pill">${activityLevel}</span>
+                        </li>
+                    </ul>
+                </div>
+            `;
+            
+            // Update visualization
+            document.querySelector('.twin-visualization').innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-user fa-5x mb-3" style="color: #4361ee;"></i>
+                    <h5>Steps Required: ${requiredSteps.toLocaleString()}</h5>
+                    <p class="text-muted">Estimated Time: ${estimatedTime} minutes</p>
+                </div>
+            `;
+        }
+        
+        // Generate AI insights
+        function generateAIInsights() {
+            const selectedModel = document.getElementById('aiModelSelect').value;
+            let modelName = '';
+            
+            switch(selectedModel) {
+                case 'medpalm':
+                    modelName = 'MedPaLM 2';
+                    break;
+                case 'biogpt':
+                    modelName = 'BioGPT';
+                    break;
+                case 'clinicalbert':
+                    modelName = 'ClinicalBERT';
+                    break;
+                case 'gatortron':
+                    modelName = 'GatorTron';
+                    break;
+                case 'pubmedgpt':
+                    modelName = 'PubMedGPT';
+                    break;
+            }
+            
+            // Simulate AI processing
+            document.getElementById('aiInsightsContainer').innerHTML = `
+                <div class="text-center py-4">
+                    <div class="spinner" style="width: 40px; height: 40px;"></div>
+                    <p class="mt-3">Analyzing your data with ${modelName}...</p>
+                </div>
+            `;
+            
+            // Simulate delay for processing
+            setTimeout(() => {
+                // Generate simulated insights based on model
+                let insights = [];
+                
+                if (selectedModel === 'medpalm') {
+                    insights = [
+                        "Based on your glucose patterns, consistent walking after meals shows a 22% improvement in post-prandial glucose levels.",
+                        "Your data suggests that maintaining a daily step count above 8,000 steps correlates with more stable glucose levels throughout the day."
+                    ];
+                } else if (selectedModel === 'biogpt') {
+                    insights = [
+                        "Research indicates that for individuals with your profile, interval walking (3 min fast, 3 min slow) may be 15% more effective than steady-paced walking for glucose control.",
+                        "A recent study found that walking in the afternoon may be more effective for glucose regulation than morning walks for type 2 diabetes patients."
+                    ];
+                } else if (selectedModel === 'clinicalbert') {
+                    insights = [
+                        "Your glucose patterns show variability that could benefit from more consistent meal timing alongside your walking routine.",
+                        "Consider discussing with your healthcare provider about adjusting medication timing relative to your walking schedule for improved synergy."
+                    ];
+                } else if (selectedModel === 'gatortron') {
+                    insights = [
+                        "Analysis of similar patient profiles shows that combining resistance training with walking yields better results than walking alone for long-term glucose management.",
+                        "Your data patterns suggest that consistency in daily step count may be more important than occasional high-activity days for glucose stability."
+                    ];
+                } else if (selectedModel === 'pubmedgpt') {
+                    insights = [
+                        "A meta-analysis of 12 studies found that every 2,000 steps per day is associated with a 5-6% reduction in diabetes-related complications.",
+                        "Recent research suggests that the glucose-lowering effects of walking may be enhanced when performed 15-30 minutes after meal consumption."
+                    ];
+                }
+                
+                // Display insights
+                let insightsHTML = '';
+                insights.forEach(insight => {
+                    insightsHTML += `
+                        <div class="insight-item">
+                            <p>${insight}</p>
+                            <div class="insight-source">${modelName} Analysis</div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('aiInsightsContainer').innerHTML = insightsHTML;
+                
+                showToast(`AI insights generated using ${modelName}`, 'success');
+            }, 3000);
+        }
+        
+        // Navigation between sections
+        function setupNavigation() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetSection = document.querySelector(targetId);
+                    
+                    // Hide all sections
+                    document.querySelectorAll('section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show target section
+                    if (targetSection) {
+                        targetSection.style.display = 'block';
+                    }
+
+                    // Update active nav link
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // If navigating to glucose page, update charts
+                    if (targetId === '#glucose') {
+                        updateGlucoseTrendsChart();
+                    }
+                });
+            });
+        }
+
+        // Initialize the app
+        function initApp() {
+            // Load settings first
+            loadSettings();
+            
+            // Initialize map
+            initMap();
+            
+            // Set up UI components
+            updateHistoryDisplay();
+            setupNavigation();
+            
+            // Set up event listeners
+            document.getElementById('startTracking').addEventListener('click', startTracking);
+            document.getElementById('stopTracking').addEventListener('click', stopTracking);
+            document.getElementById('voiceFeedback').addEventListener('click', speakStepCount);
+            document.getElementById('settingsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveSettings();
+            });
+            
+            document.getElementById('exportHistory').addEventListener('click', exportHistory);
+            document.getElementById('clearHistory').addEventListener('click', clearAllHistory);
+            document.getElementById('addGlucoseBtn').addEventListener('click', addGlucoseReading);
+            document.getElementById('addGlucoseReadingBtn').addEventListener('click', function() {
+                document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('glucoseInput').focus();
+            });
+            
+            document.getElementById('connectDeviceBtn').addEventListener('click', connectDevice);
+            document.getElementById('confirmDeviceConnection').addEventListener('click', confirmDeviceConnection);
+            
+            // Device selection
+            document.querySelectorAll('.device-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.device-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedDeviceType = this.getAttribute('data-device-type');
+                });
+            });
+            
+            // Voice selection
+            document.querySelectorAll('.voice-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.voice-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedVoice = this.getAttribute('data-voice');
+                });
+            });
+            
+            // Mood selection
+            document.querySelectorAll('.mood-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.mood-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    currentMood = this.getAttribute('data-mood');
+                    localStorage.setItem('lastMood', currentMood);
+                    
+                    // Update mood insights
+                    updateMoodInsights();
+                });
+            });
+            
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('change', function() {
+                currentTheme = this.checked ? 'dark' : 'light';
+                applyTheme(currentTheme);
+                localStorage.setItem('theme', currentTheme);
+            });
+            
+            // Target glucose
+            document.getElementById('setTargetBtn').addEventListener('click', setTargetGlucose);
+            
+            // Digital twin simulation
+            document.getElementById('runSimulationBtn').addEventListener('click', runSimulation);
+            document.getElementById('calculateStepsBtn').addEventListener('click', runSimulation);
+            
+            // AI insights
+            document.getElementById('generateInsightsBtn').addEventListener('click', generateAIInsights);
+            
+            // View tips button
+            document.getElementById('viewTipsBtn').addEventListener('click', function() {
+                Swal.fire({
+                    title: 'Diabetes Walking Tips',
+                    html: `
+                        <div class="text-start">
+                            <p><strong>1. Walk after meals:</strong> A 15-minute walk after eating can help lower blood sugar levels.</p>
+                            <p><strong>2. Consistency matters:</strong> Regular daily walking is more effective than occasional long walks.</p>
+                            <p><strong>3. Monitor your levels:</strong> Check your glucose before and after walks to understand your body's response.</p>
+                            <p><strong>4. Stay hydrated:</strong> Drink plenty of water before, during, and after your walks.</p>
+                            <p><strong>5. Wear proper footwear:</strong> Protect your feet to prevent diabetes-related complications.</p>
+                            <p><strong>6. Carry fast-acting carbs:</strong> Always have glucose tablets or juice with you in case of low blood sugar.</p>
+                        </div>
+                    `,
+                    icon: 'info',
+                    confirmButtonText: 'Got it!'
+                });
+            });
+            
+            // Initialize speech synthesis voices
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = function() {
+                    // Voices are loaded
+                };
+            }
+            
+            // Show welcome message
+            setTimeout(() => {
+                showToast('Welcome to GlucoStep Pro! Connect a device and set your route to begin tracking.', 'info');
+            }, 1000);
+            
+            // Disable start tracking button initially
+            document.getElementById('startTracking').disabled = true;
+        }
+        
+        // Update mood insights
+        function updateMoodInsights() {
+            if (!currentMood) return;
+            
+            const moodInsights = document.getElementById('moodInsights');
+            const moodMap = {
+                'very_sad': 'very sad',
+                'sad': 'sad',
+                'neutral': 'neutral',
+                'happy': 'happy',
+                'very_happy': 'very happy'
+            };
+            
+            let insightText = '';
+            
+            if (glucoseReadings.length > 0) {
+                const lastReading = glucoseReadings[glucoseReadings.length - 1];
+                const glucoseValue = lastReading.value;
+                
+                if (glucoseValue > 180 && (currentMood === 'very_sad' || currentMood === 'sad')) {
+                    insightText = `High glucose levels (${glucoseValue} mg/dL) can contribute to feelings of fatigue and irritability. Walking may help improve both your glucose levels and mood.`;
+                } else if (glucoseValue < 70 && (currentMood === 'very_sad' || currentMood === 'sad')) {
+                    insightText = `Low glucose levels (${glucoseValue} mg/dL) can cause mood changes. Consider having a snack before walking to stabilize your levels.`;
+                } else if (glucoseValue >= 70 && glucoseValue <= 180 && (currentMood === 'very_sad' || currentMood === 'sad')) {
+                    insightText = `Your glucose levels are in a good range (${glucoseValue} mg/dL), but you're reporting a low mood. Physical activity like walking can help boost endorphins and improve mood.`;
+                } else if (glucoseValue >= 70 && glucoseValue <= 180 && (currentMood === 'happy' || currentMood === 'very_happy')) {
+                    insightText = `Great! Your glucose levels are well-controlled (${glucoseValue} mg/dL) and your mood is positive. Keep up your healthy habits!`;
+                } else {
+                    insightText = `Tracking your mood alongside glucose levels helps identify patterns and connections between physical and emotional well-being.`;
+                }
+            } else {
+                insightText = `You're feeling ${moodMap[currentMood]} today. Tracking your mood alongside glucose levels helps identify patterns between physical and emotional well-being.`;
+            }
+            
+            moodInsights.innerHTML = `<i class="fas fa-info-circle me-2"></i> ${insightText}`;
+        }
+        
+        // Start the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
