@@ -307,6 +307,25 @@
         input:checked + .slider:before {
             transform: translateX(26px);
         }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            background: var(--success);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -448,16 +467,56 @@
         <i class="fas fa-arrow-left"></i>
     </button>
     
-    <!-- Updated iframe sources to match your actual file names -->
-    <iframe id="glucostep-frame" class="app-frame" src="glucostep-pro"></iframe>
-    <iframe id="glucoseguardian-frame" class="app-frame" src="glucoseguardian-pro"></iframe>
+    <!-- Demo iframes with sample applications -->
+    <iframe id="glucostep-frame" class="app-frame" src="about:blank"></iframe>
+    <iframe id="glucoseguardian-frame" class="app-frame" src="about:blank"></iframe>
     
     <div class="footer">
         <p>&copy; 2023 Diabetes Management Suite. All rights reserved.</p>
         <p>For medical emergencies, please contact your healthcare provider immediately.</p>
     </div>
+    
+    <div class="notification" id="notification"></div>
 
     <script>
+        // Sample data structure for demonstration
+        const sampleData = {
+            glucoseReadings: [
+                { timestamp: new Date().toISOString(), value: 120, unit: "mg/dL" },
+                { timestamp: new Date(Date.now() - 3600000).toISOString(), value: 115, unit: "mg/dL" },
+                { timestamp: new Date(Date.now() - 7200000).toISOString(), value: 130, unit: "mg/dL" }
+            ],
+            activityData: {
+                steps: 8432,
+                distance: 5.2,
+                calories: 320,
+                activeMinutes: 45
+            },
+            emergencyContacts: [
+                { name: "Dr. Smith", phone: "555-1234", relationship: "Primary Care" },
+                { name: "Jane Doe", phone: "555-5678", relationship: "Spouse" }
+            ]
+        };
+        
+        // Initialize data in localStorage if not present
+        function initializeData() {
+            if (!localStorage.getItem('glucostepData')) {
+                localStorage.setItem('glucostepData', JSON.stringify({
+                    glucoseReadings: sampleData.glucoseReadings,
+                    activityData: sampleData.activityData,
+                    emergencyContacts: sampleData.emergencyContacts
+                }));
+            }
+            
+            if (!localStorage.getItem('glucoseguardianData')) {
+                localStorage.setItem('glucoseguardianData', JSON.stringify({
+                    glucoseReadings: sampleData.glucoseReadings,
+                    activityData: sampleData.activityData,
+                    emergencyContacts: sampleData.emergencyContacts
+                }));
+            }
+        }
+        
         // Function to open the selected application
         function openApp(app) {
             document.querySelector('.app-container').style.display = 'none';
@@ -465,9 +524,101 @@
             document.querySelector('.back-button').style.display = 'flex';
             
             if (app === 'glucostep') {
-                document.getElementById('glucostep-frame').style.display = 'block';
+                const frame = document.getElementById('glucostep-frame');
+                frame.style.display = 'block';
+                // Create a simple demo app for GlucoStep Pro
+                frame.contentDocument.body.innerHTML = `
+                    <div style="padding: 20px; font-family: 'Inter', sans-serif;">
+                        <h1 style="color: #4361ee;">GlucoStep Pro</h1>
+                        <p>Demo application for step tracking and glucose management</p>
+                        <div style="margin-top: 20px;">
+                            <h3>Current Data:</h3>
+                            <pre id="dataDisplay"></pre>
+                            <button onclick="updateData()" style="padding: 10px 15px; background: #4361ee; color: white; border: none; border-radius: 5px; cursor: pointer;">Update Data</button>
+                        </div>
+                    </div>
+                    <script>
+                        function updateData() {
+                            // Get current data
+                            const data = ${localStorage.getItem('glucostepData') || '{}'};
+                            
+                            // Add a new glucose reading
+                            if (!data.glucoseReadings) data.glucoseReadings = [];
+                            data.glucoseReadings.push({
+                                timestamp: new Date().toISOString(),
+                                value: Math.floor(Math.random() * 100) + 80,
+                                unit: "mg/dL"
+                            });
+                            
+                            // Update activity data
+                            if (data.activityData) {
+                                data.activityData.steps += Math.floor(Math.random() * 1000);
+                                data.activityData.distance = (data.activityData.steps * 0.000762).toFixed(1);
+                            }
+                            
+                            // Save updated data
+                            localStorage.setItem('glucostepData', JSON.stringify(data));
+                            
+                            // Update display
+                            document.getElementById('dataDisplay').textContent = JSON.stringify(data, null, 2);
+                            
+                            // Notify parent window about data change
+                            window.parent.postMessage({
+                                type: 'APP_DATA_UPDATED',
+                                app: 'glucostep',
+                                data: data
+                            }, '*');
+                        }
+                        
+                        // Display current data on load
+                        document.getElementById('dataDisplay').textContent = JSON.stringify(${localStorage.getItem('glucostepData') || '{}'}, null, 2);
+                    <\/script>
+                `;
             } else if (app === 'glucoseguardian') {
-                document.getElementById('glucoseguardian-frame').style.display = 'block';
+                const frame = document.getElementById('glucoseguardian-frame');
+                frame.style.display = 'block';
+                // Create a simple demo app for GlucoseGuardian Pro
+                frame.contentDocument.body.innerHTML = `
+                    <div style="padding: 20px; font-family: 'Inter', sans-serif;">
+                        <h1 style="color: #4361ee;">GlucoseGuardian Pro</h1>
+                        <p>Demo application for hypo/hyperglycemia monitoring</p>
+                        <div style="margin-top: 20px;">
+                            <h3>Current Data:</h3>
+                            <pre id="dataDisplay"></pre>
+                            <button onclick="updateData()" style="padding: 10px 15px; background: #4361ee; color: white; border: none; border-radius: 5px; cursor: pointer;">Update Data</button>
+                        </div>
+                    </div>
+                    <script>
+                        function updateData() {
+                            // Get current data
+                            const data = ${localStorage.getItem('glucoseguardianData') || '{}'};
+                            
+                            // Add a new glucose reading
+                            if (!data.glucoseReadings) data.glucoseReadings = [];
+                            data.glucoseReadings.push({
+                                timestamp: new Date().toISOString(),
+                                value: Math.floor(Math.random() * 100) + 80,
+                                unit: "mg/dL"
+                            });
+                            
+                            // Save updated data
+                            localStorage.setItem('glucoseguardianData', JSON.stringify(data));
+                            
+                            // Update display
+                            document.getElementById('dataDisplay').textContent = JSON.stringify(data, null, 2);
+                            
+                            // Notify parent window about data change
+                            window.parent.postMessage({
+                                type: 'APP_DATA_UPDATED',
+                                app: 'glucoseguardian',
+                                data: data
+                            }, '*');
+                        }
+                        
+                        // Display current data on load
+                        document.getElementById('dataDisplay').textContent = JSON.stringify(${localStorage.getItem('glucoseguardianData') || '{}'}, null, 2);
+                    <\/script>
+                `;
             }
         }
         
@@ -494,39 +645,96 @@
             syncBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Synchronizing...';
             syncBtn.disabled = true;
             
-            // Simulate synchronization process
+            // Get data from both apps
+            const glucostepData = JSON.parse(localStorage.getItem('glucostepData') || '{}');
+            const glucoseguardianData = JSON.parse(localStorage.getItem('glucoseguardianData') || '{}');
+            
+            // Create merged data based on user preferences
+            const mergedData = {};
+            
+            if (syncGlucose) {
+                // Merge glucose readings from both apps, removing duplicates
+                const allGlucoseReadings = [
+                    ...(glucostepData.glucoseReadings || []),
+                    ...(glucoseguardianData.glucoseReadings || [])
+                ];
+                
+                // Remove duplicates based on timestamp
+                const uniqueReadings = allGlucoseReadings.filter((reading, index, self) => 
+                    index === self.findIndex(r => r.timestamp === reading.timestamp)
+                );
+                
+                // Sort by timestamp (newest first)
+                uniqueReadings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                mergedData.glucoseReadings = uniqueReadings;
+            }
+            
+            if (syncActivity) {
+                // Use the most recent activity data (prioritize GlucoStep for activity)
+                mergedData.activityData = glucostepData.activityData || glucoseguardianData.activityData;
+            }
+            
+            if (syncContacts) {
+                // Merge emergency contacts from both apps, removing duplicates
+                const allContacts = [
+                    ...(glucostepData.emergencyContacts || []),
+                    ...(glucoseguardianData.emergencyContacts || [])
+                ];
+                
+                // Remove duplicates based on phone number
+                const uniqueContacts = allContacts.filter((contact, index, self) => 
+                    index === self.findIndex(c => c.phone === contact.phone)
+                );
+                
+                mergedData.emergencyContacts = uniqueContacts;
+            }
+            
+            // Update both apps with the synchronized data
+            localStorage.setItem('glucostepData', JSON.stringify({
+                ...glucostepData,
+                ...mergedData
+            }));
+            
+            localStorage.setItem('glucoseguardianData', JSON.stringify({
+                ...glucoseguardianData,
+                ...mergedData
+            }));
+            
+            // Show success notification
+            showNotification('Data synchronized successfully!');
+            
+            // Restore button state
             setTimeout(() => {
-                // In a real implementation, this would:
-                // 1. Get data from each app's localStorage
-                // 2. Transfer the selected data to the other app
-                // 3. Update both apps with the synchronized data
-                
-                // For demonstration, we'll just show a success message
-                alert('Data synchronized successfully!');
-                
-                // Restore button state
                 syncBtn.innerHTML = originalText;
                 syncBtn.disabled = false;
             }, 1500);
         }
         
+        // Function to show notifications
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
         // Initialize the hub
         function initHub() {
-            // Check if we're coming back from an app with data to transfer
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('syncData')) {
-                syncData();
-            }
+            initializeData();
             
             // Set up message listening for cross-app communication
             window.addEventListener('message', function(event) {
                 // Handle messages from the iframed applications
-                if (event.data.type === 'GLUCOSE_DATA') {
-                    // Store glucose data for synchronization
-                    localStorage.setItem('glucoseData', JSON.stringify(event.data.payload));
-                } else if (event.data.type === 'ACTIVITY_DATA') {
-                    // Store activity data for synchronization
-                    localStorage.setItem('activityData', JSON.stringify(event.data.payload));
+                if (event.data.type === 'APP_DATA_UPDATED') {
+                    // Store the updated data in localStorage
+                    localStorage.setItem(`${event.data.app}Data`, JSON.stringify(event.data.data));
+                    
+                    // Show notification
+                    showNotification(`${event.data.app} data updated`);
                 }
             });
         }
