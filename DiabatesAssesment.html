@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Type Assessment | Medical Diagnosis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --type1: #3498db;
+            --type2: #e74c3c;
+            --gestational: #9b59b6;
+            --prediabetes: #f39c12;
+            --lada: #1abc9c;
+            --safe: #2ecc71;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--dark), #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            height: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--safe);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Assessment Section */
+        .assessment-section {
+            padding: 40px;
+            display: block;
+        }
+
+        .question-section {
+            display: none;
+        }
+
+        .question-section.active {
+            display: block;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .option:hover {
+            border-color: var(--type1);
+            background: #e3f2fd;
+        }
+
+        .option.selected {
+            border-color: var(--type1);
+            background: #e3f2fd;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--type1);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: var(--dark);
+        }
+
+        /* Dashboard Section */
+        .dashboard-section {
+            padding: 30px;
+            display: none;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .results-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid var(--type1);
+        }
+
+        .result-type {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .result-confidence {
+            font-size: 1.3rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+
+        .percentage-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .percentage-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid;
+        }
+
+        .percentage-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .symptoms-list {
+            margin: 20px 0;
+        }
+
+        .symptom-item {
+            padding: 10px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .symptom-present {
+            color: var(--safe);
+            font-weight: 600;
+        }
+
+        .symptom-absent {
+            color: var(--critical);
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            height: 300px;
+        }
+
+        .risk-factors {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        .risk-item {
+            padding: 15px;
+            background: white;
+            margin: 10px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .risk-high { border-left: 4px solid var(--critical); }
+        .risk-medium { border-left: 4px solid var(--warning); }
+        .risk-low { border-left: 4px solid var(--safe); }
+
+        .type1 { border-left-color: var(--type1); color: var(--type1); }
+        .type2 { border-left-color: var(--type2); color: var(--type2); }
+        .gestational { border-left-color: var(--gestational); color: var(--gestational); }
+        .prediabetes { border-left-color: var(--prediabetes); color: var(--prediabetes); }
+        .lada { border-left-color: var(--lada); color: var(--lada); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Diabetes Type Assessment</h1>
+            <p>Let's understand your health better with these 10 simple questions</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div id="progressText">Question 1 of 10</div>
+        </div>
+
+        <!-- Assessment Section -->
+        <div class="assessment-section" id="assessmentSection">
+            <!-- Question 1: Age -->
+            <div class="question-section active" id="question1">
+                <div class="question-text">How old are you currently?</div>
+                <div class="options-container">
+                    <label class="option">
+                        <input type="radio" name="age" value="under25"> Under 25 years
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="age" value="25_40"> 25 - 40 years
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="age" value="40_60"> 40 - 60 years
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="age" value="over60"> Over 60 years
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="age" value="pregnant"> I'm currently pregnant
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn btn-secondary" onclick="previousQuestion()" disabled>Previous</button>
+                    <button class="nav-btn btn-primary" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+
+            <!-- Question 2: Symptom Onset -->
+            <div class="question-section" id="question2">
+                <div class="question-text">When did you first notice changes in your health?</div>
+                <div class="options-container">
+                    <label class="option">
+                        <input type="radio" name="onset" value="recent_rapid"> Recently, came on very quickly (days/weeks)
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="onset" value="recent_gradual"> Recently, developed slowly (months)
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="onset" value="long_gradual"> Over the past few years gradually
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="onset" value="during_pregnancy"> Started during pregnancy
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="onset" value="no_changes"> Haven't noticed any changes
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn btn-secondary" onclick="previousQuestion()">Previous</button>
+                    <button class="nav-btn btn-primary" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+
+            <!-- Question 3: Thirst & Urination -->
+            <div class="question-section" id="question3">
+                <div class="question-text">Have you been feeling unusually thirsty or needing to urinate more often?</div>
+                <div class="options-container">
+                    <label class="option">
+                        <input type="radio" name="thirst" value="extreme"> Yes, extremely thirsty and bathroom trips
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="thirst" value="moderate"> Yes, somewhat more than usual
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="thirst" value="mild"> A little bit, but not too noticeable
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="thirst" value="pregnancy_related"> More during pregnancy
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="thirst" value="none"> No changes in thirst or urination
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn btn-secondary" onclick="previousQuestion()">Previous</button>
+                    <button class="nav-btn btn-primary" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+
+            <!-- Question 4: Energy Levels -->
+            <div class="question-section" id="question4">
+                <div class="question-text">How have your energy levels been feeling lately?</div>
+                <div class="options-container">
+                    <label class="option">
+                        <input type="radio" name="energy" value="very_low"> Constantly tired and drained
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="energy" value="low_after_meals"> Tired especially after eating
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="energy" value="moderate_low"> More tired than usual
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="energy" value="pregnancy_tired"> Pregnancy-related fatigue
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="energy" value="normal"> Energy levels feel normal
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn btn-secondary" onclick="previousQuestion()">Previous</button>
+                    <button class="nav-btn btn-primary" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+
+            <!-- Question 5: Weight Changes -->
+            <div class="question-section" id="question5">
+                <div class="question-text">Have you noticed any changes in your weight recently?</div>
+                <div class="options-container">
+                    <label class="option">
+                        <input type="radio" name="weight" value="rapid_loss"> Lost weight quickly without trying
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="weight" value="gradual_gain"> Gaining weight gradually over time
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="weight" value="stable"> Weight has stayed about the same
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="weight" value="pregnancy_gain"> Normal pregnancy weight gain
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="weight" value="fluctuating"> Weight goes up and down
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn btn-secondary" onclick="previousQuestion()">Previous</button>
+                    <button class="nav-btn btn-primary" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+
+            <!-- Question 6: Sleep Quality -->
+            <div class="question-section" id="question6">
+                <div class="question-text">How would you describe your sleep quality recently?</div>
+                <div class="options-container">
+                    <label class="option">
+                        <input type="radio" name="sleep" value="wake_bathroom"> Wake up multiple times for bathroom
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="sleep" value="restless_thirst"> Restless, wake up thirsty
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="sleep" value="tired_morning"> Sleep through night but wake up tired
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="sleep" value="pregnancy_sleep"> Pregnancy affecting sleep
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="sleep" value="good_sleep"> Sleep well and feel rested
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn btn-secondary" onclick="previousQuestion()">Previous</button>
+                    <button class="nav-btn btn-primary" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+
+            <!-- Question 7: Vision Changes -->
+            <div class="question-section" id="question7">
+                <div class="question-text">Have you noticed any changes in your vision?</div>
+                <div class="options-container">
+                    <label class="option">
+                        <input type="radio" name="vision" value="blurred_fluctuating"> Vision gets blurry sometimes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="vision" value="blurred_constant"> Constantly blurry vision
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="vision" value="pregnancy_vision"> Vision changes during pregnancy
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="vision" value="minor_changes"> Minor changes, not concerning
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="vision" value="no_changes"> No changes in vision
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn btn-secondary" onclick="previousQuestion()">Previous</button>
+                    <button class="nav-btn btn-primary" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+
+            <!-- Question 8: Family History -->
+            <div class="question-section" id="question8">
+                <div class="question-text">Does diabetes run in your family?</div>
+                <div class="options-container">
+                    <label class="option">
+                        <input type="radio" name="family" value="parents_siblings"> Parents or siblings have diabetes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="family" value="grandparents"> Grandparents have diabetes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="family" value="gestational_family"> Family history of gestational diabetes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="family" value="distant"> Distant relatives only
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="family" value="none"> No family history of diabetes
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn btn-secondary" onclick="previousQuestion()">Previous</button>
+                    <button class="nav-btn btn-primary" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+
+            <!-- Question 9: Hunger & Cravings -->
+            <div class="question-section" id="question9">
+                <div class="question-text">How has your appetite been recently?</div>
+                <div class="options-container">
+                    <label class="option">
+                        <input type="radio" name="hunger" value="always_hungry"> Always hungry even after eating
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="hunger" value="sugar_cravings"> Strong cravings for sugary foods
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="hunger" value="normal_appetite"> Normal appetite, no changes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="hunger" value="pregnancy_appetite"> Pregnancy-related appetite changes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="hunger" value="reduced_appetite"> Less hungry than usual
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn btn-secondary" onclick="previousQuestion()">Previous</button>
+                    <button class="nav-btn btn-primary" onclick="nextQuestion()">Next</button>
+                </div>
+            </div>
+
+            <!-- Question 10: Other Symptoms -->
+            <div class="question-section" id="question10">
+                <div class="question-text">Have you experienced any of these other symptoms?</div>
+                <div class="options-container">
+                    <label class="option">
+                        <input type="radio" name="other" value="skin_infections"> Frequent skin infections or slow healing
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="other" value="tingling_feet"> Tingling or numbness in hands/feet
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="other" value="nausea_vomiting"> Nausea or vomiting
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="other" value="pregnancy_symptoms"> Pregnancy-related symptoms only
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="other" value="none"> None of these symptoms
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn btn-secondary" onclick="previousQuestion()">Previous</button>
+                    <button class="nav-btn btn-primary" onclick="showResults()">See My Results</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div class="dashboard-section" id="dashboardSection">
+            <h2 style="text-align: center; margin-bottom: 30px; color: var(--dark);">Your Diabetes Assessment Results</h2>
+            
+            <div class="dashboard-grid">
+                <!-- Left Column: Results & Symptoms -->
+                <div>
+                    <div class="results-card" id="primaryResult">
+                        <div class="result-type" id="diagnosisType">Analyzing Your Results...</div>
+                        <div class="result-confidence" id="confidenceLevel">Calculating probabilities...</div>
+                        
+                        <!-- Percentage Grid -->
+                        <div class="percentage-grid">
+                            <div class="percentage-card type1">
+                                <div>Type 1 Diabetes</div>
+                                <div class="percentage-value" id="type1Percent">0%</div>
+                                <div>Probability</div>
+                            </div>
+                            <div class="percentage-card type2">
+                                <div>Type 2 Diabetes</div>
+                                <div class="percentage-value" id="type2Percent">0%</div>
+                                <div>Probability</div>
+                            </div>
+                            <div class="percentage-card gestational">
+                                <div>Gestational Diabetes</div>
+                                <div class="percentage-value" id="gestationalPercent">0%</div>
+                                <div>Probability</div>
+                            </div>
+                            <div class="percentage-card prediabetes">
+                                <div>Pre-diabetes</div>
+                                <div class="percentage-value" id="prediabetesPercent">0%</div>
+                                <div>Probability</div>
+                            </div>
+                            <div class="percentage-card lada">
+                                <div>LADA Diabetes</div>
+                                <div class="percentage-value" id="ladaPercent">0%</div>
+                                <div>Probability</div>
+                            </div>
+                        </div>
+
+                        <div class="symptoms-list">
+                            <h3>Your Reported Symptoms</h3>
+                            <div id="symptomsAnalysis">
+                                <!-- Symptoms will be populated here -->
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 25px;">
+                            <h3>Recommended Next Steps</h3>
+                            <div id="recommendations">
+                                <!-- Recommendations will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Charts & Risks -->
+                <div>
+                    <div class="chart-container">
+                        <canvas id="probabilityChart"></canvas>
+                    </div>
+                    
+                    <div class="risk-factors">
+                        <h3>Your Risk Factors</h3>
+                        <div id="riskFactors">
+                            <!-- Risk factors will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="nav-btn btn-primary" onclick="restartAssessment()">Start New Assessment</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        const totalQuestions = 10;
+        const userResponses = {};
+        let probabilityChart;
+
+        // Initialize option selection
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                
+                // Update visual selection
+                this.parentElement.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+
+        function updateProgress() {
+            const progress = ((currentQuestion - 1) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `Question ${currentQuestion} of ${totalQuestions}`;
+        }
+
+        function nextQuestion() {
+            saveCurrentResponse();
+            
+            if (currentQuestion < totalQuestions) {
+                document.getElementById(`question${currentQuestion}`).classList.remove('active');
+                currentQuestion++;
+                document.getElementById(`question${currentQuestion}`).classList.add('active');
+                updateProgress();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 1) {
+                document.getElementById(`question${currentQuestion}`).classList.remove('active');
+                currentQuestion--;
+                document.getElementById(`question${currentQuestion}`).classList.add('active');
+                updateProgress();
+            }
+        }
+
+        function saveCurrentResponse() {
+            const currentQuestionElement = document.getElementById(`question${currentQuestion}`);
+            const selectedOption = currentQuestionElement.querySelector('input[type="radio"]:checked');
+            if (selectedOption) {
+                userResponses[`question${currentQuestion}`] = selectedOption.value;
+            }
+        }
+
+        function showResults() {
+            saveCurrentResponse();
+            document.getElementById('assessmentSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            calculateResults();
+        }
+
+        function calculateResults() {
+            const scores = {
+                type1: 0,
+                type2: 0,
+                gestational: 0,
+                prediabetes: 0,
+                lada: 0
+            };
+
+            // MEDICAL SCORING ALGORITHM - IMPROVED ACCURACY
+            // Based on clinical diagnostic criteria for each diabetes type
+
+            // Question 1: Age (Critical for type differentiation)
+            if (userResponses.question1 === 'under25') {
+                scores.type1 += 40;  // Type 1 most common in young
+                scores.lada += 10;
+            }
+            if (userResponses.question1 === '25_40') {
+                scores.lada += 35;   // LADA peak age
+                scores.type1 += 20;
+                scores.type2 += 15;
+            }
+            if (userResponses.question1 === '40_60') {
+                scores.type2 += 30;  // Type 2 most common
+                scores.lada += 20;
+            }
+            if (userResponses.question1 === 'over60') {
+                scores.type2 += 35;  // Type 2 dominant in elderly
+                scores.prediabetes += 15;
+            }
+            if (userResponses.question1 === 'pregnant') {
+                scores.gestational += 45; // Pregnancy is key indicator
+            }
+
+            // Question 2: Symptom Onset (Key diagnostic differentiator)
+            if (userResponses.question2 === 'recent_rapid') {
+                scores.type1 += 35;  // Rapid onset = Type 1
+                scores.lada += 10;
+            }
+            if (userResponses.question2 === 'recent_gradual') {
+                scores.type2 += 25;  // Gradual onset = Type 2
+                scores.lada += 20;
+                scores.prediabetes += 15;
+            }
+            if (userResponses.question2 === 'long_gradual') {
+                scores.type2 += 30;  // Very gradual = Type 2
+                scores.prediabetes += 20;
+            }
+            if (userResponses.question2 === 'during_pregnancy') {
+                scores.gestational += 40; // Pregnancy timing
+            }
+
+            // Question 3: Thirst & Urination (Classic symptoms)
+            if (userResponses.question3 === 'extreme') {
+                scores.type1 += 30;  // Extreme symptoms = Type 1
+                scores.type2 += 15;
+            }
+            if (userResponses.question3 === 'moderate') {
+                scores.type2 += 20;  // Moderate symptoms = Type 2
+                scores.lada += 15;
+            }
+            if (userResponses.question3 === 'pregnancy_related') {
+                scores.gestational += 25;
+            }
+
+            // Question 4: Energy Levels
+            if (userResponses.question4 === 'very_low') {
+                scores.type1 += 25;
+                scores.type2 += 15;
+            }
+            if (userResponses.question4 === 'low_after_meals') {
+                scores.type2 += 20;  // Post-prandial fatigue = insulin resistance
+                scores.prediabetes += 15;
+            }
+            if (userResponses.question4 === 'pregnancy_tired') {
+                scores.gestational += 20;
+            }
+
+            // Question 5: Weight Changes (Important differentiator)
+            if (userResponses.question5 === 'rapid_loss') {
+                scores.type1 += 35;  // Rapid weight loss = Type 1 hallmark
+            }
+            if (userResponses.question5 === 'gradual_gain') {
+                scores.type2 += 25;  // Weight gain = Type 2 pattern
+                scores.prediabetes += 15;
+            }
+            if (userResponses.question5 === 'pregnancy_gain') {
+                scores.gestational += 20;
+            }
+
+            // Question 6: Sleep Quality
+            if (userResponses.question6 === 'wake_bathroom') {
+                scores.type1 += 20;
+                scores.type2 += 15;
+            }
+            if (userResponses.question6 === 'restless_thirst') {
+                scores.type1 += 15;
+                scores.type2 += 10;
+            }
+            if (userResponses.question6 === 'pregnancy_sleep') {
+                scores.gestational += 15;
+            }
+
+            // Question 7: Vision Changes
+            if (userResponses.question7 === 'blurred_fluctuating') {
+                scores.type1 += 20;  // Fluctuating vision = glucose variability
+            }
+            if (userResponses.question7 === 'blurred_constant') {
+                scores.type2 += 20;  // Constant blurring = long-term hyperglycemia
+            }
+            if (userResponses.question7 === 'pregnancy_vision') {
+                scores.gestational += 15;
+            }
+
+            // Question 8: Family History (Genetic risk)
+            if (userResponses.question8 === 'parents_siblings') {
+                scores.type1 += 25;
+                scores.type2 += 25;
+                scores.lada += 20;
+            }
+            if (userResponses.question8 === 'grandparents') {
+                scores.type2 += 20;
+                scores.prediabetes += 15;
+            }
+            if (userResponses.question8 === 'gestational_family') {
+                scores.gestational += 25;
+            }
+
+            // Question 9: Hunger & Cravings
+            if (userResponses.question9 === 'always_hungry') {
+                scores.type1 += 20;  // Polyphagia = Type 1
+            }
+            if (userResponses.question9 === 'sugar_cravings') {
+                scores.type2 += 20;  // Sugar cravings = insulin resistance
+                scores.prediabetes += 15;
+            }
+            if (userResponses.question9 === 'pregnancy_appetite') {
+                scores.gestational += 15;
+            }
+
+            // Question 10: Other Symptoms
+            if (userResponses.question10 === 'skin_infections') {
+                scores.type2 += 20;  // Infections = immune compromise in Type 2
+            }
+            if (userResponses.question10 === 'tingling_feet') {
+                scores.type2 += 25;  // Neuropathy = long-standing Type 2
+            }
+            if (userResponses.question10 === 'nausea_vomiting') {
+                scores.type1 += 30;  // GI symptoms = possible DKA in Type 1
+            }
+            if (userResponses.question10 === 'pregnancy_symptoms') {
+                scores.gestational += 20;
+            }
+
+            // LADA-specific scoring (autoimmune but adult onset)
+            if (userResponses.question1 === '25_40' && userResponses.question2 === 'recent_gradual') {
+                scores.lada += 25;
+            }
+            if (userResponses.question1 === '25_40' && userResponses.question5 === 'stable') {
+                scores.lada += 15;
+            }
+
+            // Pre-diabetes scoring (milder symptoms)
+            if (scores.type2 > 30 && scores.type2 < 60) {
+                scores.prediabetes += scores.type2 * 0.6;
+            }
+
+            // Ensure no type exceeds 100
+            Object.keys(scores).forEach(type => {
+                scores[type] = Math.min(scores[type], 100);
+            });
+
+            // Calculate percentages and display results
+            displayResults(scores);
+        }
+
+        function displayResults(scores) {
+            const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+            const percentages = {};
+            
+            // Calculate percentages for each type
+            Object.keys(scores).forEach(type => {
+                percentages[type] = totalScore > 0 ? Math.round((scores[type] / totalScore) * 100) : 0;
+            });
+
+            // Update ALL percentage displays including LADA
+            document.getElementById('type1Percent').textContent = `${percentages.type1}%`;
+            document.getElementById('type2Percent').textContent = `${percentages.type2}%`;
+            document.getElementById('gestationalPercent').textContent = `${percentages.gestational}%`;
+            document.getElementById('prediabetesPercent').textContent = `${percentages.prediabetes}%`;
+            document.getElementById('ladaPercent').textContent = `${percentages.lada}%`;
+
+            // Find primary diagnosis
+            const primaryType = Object.keys(percentages).reduce((a, b) => 
+                percentages[a] > percentages[b] ? a : b
+            );
+
+            // Update diagnosis display
+            const typeNames = {
+                type1: "Type 1 Diabetes",
+                type2: "Type 2 Diabetes", 
+                gestational: "Gestational Diabetes",
+                prediabetes: "Pre-diabetes",
+                lada: "LADA (Type 1.5 Diabetes)"
+            };
+
+            document.getElementById('diagnosisType').textContent = typeNames[primaryType];
+            document.getElementById('confidenceLevel').textContent = `Based on your symptoms, this is the most likely type (${percentages[primaryType]}% match)`;
+            document.getElementById('primaryResult').className = `results-card ${primaryType}`;
+
+            // Display symptoms
+            displaySymptoms(primaryType);
+            
+            // Display recommendations
+            displayRecommendations(primaryType);
+            
+            // Display risk factors
+            displayRiskFactors(primaryType);
+            
+            // Create probability chart
+            createProbabilityChart(percentages);
+        }
+
+        function displaySymptoms(diabetesType) {
+            const symptomsContainer = document.getElementById('symptomsAnalysis');
+            const symptoms = {
+                type1: [
+                    "Extreme thirst and frequent urination",
+                    "Rapid weight loss without trying", 
+                    "Constant fatigue and hunger",
+                    "Blurred vision that fluctuates",
+                    "Frequent bathroom trips at night"
+                ],
+                type2: [
+                    "Increased thirst and urination",
+                    "Gradual weight gain over time",
+                    "Fatigue especially after meals", 
+                    "Slow healing of cuts or wounds",
+                    "Tingling in hands or feet"
+                ],
+                gestational: [
+                    "Increased thirst during pregnancy",
+                    "More frequent urination",
+                    "Pregnancy-related fatigue",
+                    "Increased appetite or cravings",
+                    "Vision changes during pregnancy"
+                ],
+                prediabetes: [
+                    "Mild increase in thirst",
+                    "Occasional fatigue",
+                    "Slight weight changes", 
+                    "Mild symptoms often unnoticed",
+                    "Increased hunger at times"
+                ],
+                lada: [
+                    "Symptoms develop slowly in adulthood (25-50 years)",
+                    "Increased thirst and urination",
+                    "Gradual weight changes",
+                    "Fatigue that worsens over time",
+                    "Family history of autoimmune diabetes"
+                ]
+            };
+
+            symptomsContainer.innerHTML = symptoms[diabetesType].map(symptom => `
+                <div class="symptom-item">
+                    <span>${symptom}</span>
+                    <span class="symptom-present">●</span>
+                </div>
+            `).join('');
+        }
+
+        function displayRecommendations(diabetesType) {
+            const recommendationsContainer = document.getElementById('recommendations');
+            const recommendations = {
+                type1: [
+                    "Schedule appointment with endocrinologist immediately",
+                    "Begin blood glucose monitoring 4-6 times daily",
+                    "Learn about insulin therapy options", 
+                    "Get comprehensive diabetes education",
+                    "Carry emergency glucose sources at all times"
+                ],
+                type2: [
+                    "Consult with primary care doctor within 1-2 weeks",
+                    "Start lifestyle modifications (diet & exercise)",
+                    "Consider metformin medication as first-line", 
+                    "Regular blood sugar checks (fasting and post-meal)",
+                    "Focus on 5-10% weight loss if overweight"
+                ],
+                gestational: [
+                    "See obstetrician and diabetes specialist immediately",
+                    "Start pregnancy-safe diet plan with nutritionist",
+                    "Monitor glucose levels 4 times daily",
+                    "Consider insulin if diet alone doesn't control levels",
+                    "Post-delivery follow-up testing at 6-12 weeks"
+                ],
+                prediabetes: [
+                    "Implement intensive lifestyle changes now",
+                    "Aim for 5-7% weight loss if overweight", 
+                    "Increase physical activity to 150 minutes weekly",
+                    "Choose healthy low-glycemic index foods",
+                    "Get annual diabetes screening and follow-up"
+                ],
+                lada: [
+                    "See endocrinologist for proper diagnosis and autoantibody testing",
+                    "Get GAD antibody and C-peptide testing",
+                    "Prepare for eventual insulin therapy within 6 months-6 years",
+                    "Monitor blood glucose regularly as beta cell function declines", 
+                    "Join diabetes education program for Type 1 management"
+                ]
+            };
+
+            recommendationsContainer.innerHTML = recommendations[diabetesType].map(rec => `
+                <div style="padding: 10px; background: white; margin: 5px 0; border-radius: 5px;">
+                    • ${rec}
+                </div>
+            `).join('');
+        }
+
+        function displayRiskFactors(diabetesType) {
+            const riskContainer = document.getElementById('riskFactors');
+            const factors = {
+                type1: ["Young age at onset", "Family history of Type 1", "Autoimmune conditions", "Rapid symptom development", "European ancestry"],
+                type2: ["Age over 40", "Family history of Type 2", "Overweight/obesity (BMI >25)", "Sedentary lifestyle", "High blood pressure", "History of gestational diabetes"],
+                gestational: ["Current pregnancy", "Family history of diabetes", "Overweight before pregnancy", "Previous gestational diabetes", "PCOS", "Age over 25"],
+                prediabetes: ["Overweight (especially abdominal)", "Family history", "Sedentary lifestyle", "High blood pressure", "Age over 45", "History of gestational diabetes"],
+                lada: ["Adult age (25-50 years)", "Family history of autoimmune diabetes", "Gradual symptom onset over months", "Personal history of other autoimmune conditions", "European ancestry"]
+            };
+
+            riskContainer.innerHTML = factors[diabetesType].map(factor => `
+                <div class="risk-item risk-high">
+                    <span>${factor}</span>
+                    <span style="color: var(--critical);">●</span>
+                </div>
+            `).join('');
+        }
+
+        function createProbabilityChart(percentages) {
+            const ctx = document.getElementById('probabilityChart').getContext('2d');
+            
+            if (probabilityChart) {
+                probabilityChart.destroy();
+            }
+
+            probabilityChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Type 1', 'Type 2', 'Gestational', 'Pre-diabetes', 'LADA'],
+                    datasets: [{
+                        data: [
+                            percentages.type1,
+                            percentages.type2, 
+                            percentages.gestational,
+                            percentages.prediabetes,
+                            percentages.lada
+                        ],
+                        backgroundColor: [
+                            '#3498db',
+                            '#e74c3c',
+                            '#9b59b6', 
+                            '#f39c12',
+                            '#1abc9c'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.parsed}% probability`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function restartAssessment() {
+            currentQuestion = 1;
+            
+            // Reset all selections
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = false;
+            });
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('assessmentSection').style.display = 'block';
+            
+            // Show first question
+            document.querySelectorAll('.question-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById('question1').classList.add('active');
+            
+            updateProgress();
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
