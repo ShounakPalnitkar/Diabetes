@@ -307,87 +307,6 @@
         input:checked + .slider:before {
             transform: translateX(26px);
         }
-        
-        /* New styles for additional apps */
-        .additional-apps {
-            margin-top: 30px;
-        }
-        
-        .additional-apps-title {
-            color: white;
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-        
-        .additional-apps-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        
-        .additional-app-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .additional-app-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
-        
-        .additional-app-header {
-            background: linear-gradient(to right, var(--accent), var(--warning));
-            color: white;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .additional-app-icon {
-            font-size: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .additional-app-content {
-            padding: 15px;
-        }
-        
-        .additional-app-description {
-            margin-bottom: 15px;
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        
-        .additional-app-btn {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            background: var(--accent);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            text-align: center;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        
-        .additional-app-btn:hover {
-            background: #d81159;
-        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -477,63 +396,6 @@
             </div>
         </div>
         
-                        <div>
-                            <h3>Diabetes Type Assessment</h3>
-                            <p>Medical diagnosis tool</p>
-                        </div>
-                    </div>
-                    <div class="additional-app-content">
-                        <p class="additional-app-description">
-                            Take a 10-question assessment to understand your diabetes type and get personalized recommendations.
-                        </p>
-                        <button class="additional-app-btn" onclick="openApp('diabetes-assessment')">
-                            Open Assessment
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="additional-app-card">
-                    <div class="additional-app-header">
-                        <div class="additional-app-icon">
-                            <i class="fas fa-book-medical"></i>
-                        </div>
-                        <div>
-                            <h3>Diabetes Education</h3>
-                            <p>Complications awareness</p>
-                        </div>
-                    </div>
-                    <div class="additional-app-content">
-                        <p class="additional-app-description">
-                            Learn about diabetes complications, prevention strategies, and how to manage your condition effectively.
-                        </p>
-                        <button class="additional-app-btn" onclick="openApp('diabetes-education')">
-                            Open Education
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="additional-app-card">
-                    <div class="additional-app-header">
-                        <div class="additional-app-icon">
-                            <i class="fas fa-x-ray"></i>
-                        </div>
-                        <div>
-                            <h3>Medical Imaging Analysis</h3>
-                            <p>Advanced diagnostics</p>
-                        </div>
-                    </div>
-                    <div class="additional-app-content">
-                        <p class="additional-app-description">
-                            Upload medical images for enhanced diabetes complication assessment and analysis.
-                        </p>
-                        <button class="additional-app-btn" onclick="openApp('medical-imaging')">
-                            Open Imaging Tool
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
         <div class="sync-section">
             <div class="sync-title">
                 <i class="fas fa-sync-alt"></i>
@@ -574,17 +436,6 @@
                         <span class="slider"></span>
                     </label>
                 </div>
-                
-                <div class="data-item">
-                    <div>
-                        <strong>Assessment Results</strong>
-                        <p>Share diabetes type assessment results</p>
-                    </div>
-                    <label class="toggle">
-                        <input type="checkbox" id="syncAssessment" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
             </div>
             
             <button class="btn sync-btn" onclick="syncData()">
@@ -600,9 +451,6 @@
     <!-- Updated iframe sources to match your actual file names -->
     <iframe id="glucostep-frame" class="app-frame" src="glucostep-pro"></iframe>
     <iframe id="glucoseguardian-frame" class="app-frame" src="glucoseguardian-pro"></iframe>
-    <iframe id="diabetes-assessment-frame" class="app-frame" src="DiabatesAssesment (1).html"></iframe>
-    <iframe id="diabetes-education-frame" class="app-frame" src="Diabetes-Pamphlet (1).html"></iframe>
-    <iframe id="medical-imaging-frame" class="app-frame" src="Mediacl Imaging Analysis (1).html"></iframe>
     
     <div class="footer">
         <p>&copy; 2023 Diabetes Management Suite. All rights reserved.</p>
@@ -620,12 +468,6 @@
                 document.getElementById('glucostep-frame').style.display = 'block';
             } else if (app === 'glucoseguardian') {
                 document.getElementById('glucoseguardian-frame').style.display = 'block';
-            } else if (app === 'diabetes-assessment') {
-                document.getElementById('diabetes-assessment-frame').style.display = 'block';
-            } else if (app === 'diabetes-education') {
-                document.getElementById('diabetes-education-frame').style.display = 'block';
-            } else if (app === 'medical-imaging') {
-                document.getElementById('medical-imaging-frame').style.display = 'block';
             }
         }
         
@@ -637,9 +479,6 @@
             
             document.getElementById('glucostep-frame').style.display = 'none';
             document.getElementById('glucoseguardian-frame').style.display = 'none';
-            document.getElementById('diabetes-assessment-frame').style.display = 'none';
-            document.getElementById('diabetes-education-frame').style.display = 'none';
-            document.getElementById('medical-imaging-frame').style.display = 'none';
         }
         
         // Function to synchronize data between applications
@@ -648,7 +487,6 @@
             const syncGlucose = document.getElementById('syncGlucose').checked;
             const syncActivity = document.getElementById('syncActivity').checked;
             const syncContacts = document.getElementById('syncContacts').checked;
-            const syncAssessment = document.getElementById('syncAssessment').checked;
             
             // Show loading state
             const syncBtn = document.querySelector('.sync-btn');
@@ -689,9 +527,6 @@
                 } else if (event.data.type === 'ACTIVITY_DATA') {
                     // Store activity data for synchronization
                     localStorage.setItem('activityData', JSON.stringify(event.data.payload));
-                } else if (event.data.type === 'ASSESSMENT_RESULTS') {
-                    // Store assessment results for synchronization
-                    localStorage.setItem('assessmentResults', JSON.stringify(event.data.payload));
                 }
             });
         }
