@@ -70,7 +70,7 @@
             border-radius: 15px;
             overflow: hidden;
             width: 100%;
-            max-width: 580px;
+            max-width: 380px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -107,6 +107,7 @@
         .app-description {
             margin-bottom: 20px;
             color: #6c757d;
+            font-size: 0.9rem;
         }
         
         .app-features {
@@ -118,16 +119,18 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 10px;
+            font-size: 0.85rem;
         }
         
         .feature i {
             color: var(--primary);
+            font-size: 0.8rem;
         }
         
         .btn {
             display: block;
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             border: none;
             border-radius: 10px;
             background: var(--primary);
@@ -137,6 +140,7 @@
             transition: background 0.3s ease;
             text-align: center;
             text-decoration: none;
+            font-size: 0.9rem;
         }
         
         .btn:hover {
@@ -214,6 +218,10 @@
             
             .sync-options {
                 flex-direction: column;
+            }
+            
+            .app-card {
+                max-width: 100%;
             }
         }
         
@@ -346,10 +354,6 @@
                             <i class="fas fa-check-circle"></i>
                             <span>AI-powered insights and predictions</span>
                         </div>
-                        <div class="feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Route planning and GPS tracking</span>
-                        </div>
                     </div>
                     <button class="btn" onclick="openApp('glucostep')">
                         Open GlucoStep Pro
@@ -384,13 +388,145 @@
                             <i class="fas fa-check-circle"></i>
                             <span>Emergency contact management</span>
                         </div>
+                    </div>
+                    <button class="btn" onclick="openApp('glucoseguardian')">
+                        Open GlucoseGuardian Pro
+                    </button>
+                </div>
+            </div>
+            
+            <div class="app-card">
+                <div class="app-header">
+                    <div class="app-icon">
+                        <i class="fas fa-stethoscope"></i>
+                    </div>
+                    <div>
+                        <h2>Diabetes Type Assessment</h2>
+                        <p>Medical diagnosis tool</p>
+                    </div>
+                </div>
+                <div class="app-content">
+                    <p class="app-description">
+                        Take a comprehensive assessment to understand your diabetes type and get personalized recommendations.
+                    </p>
+                    <div class="app-features">
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>10-question assessment</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Type differentiation analysis</span>
+                        </div>
                         <div class="feature">
                             <i class="fas fa-check-circle"></i>
                             <span>Personalized recommendations</span>
                         </div>
                     </div>
-                    <button class="btn" onclick="openApp('glucoseguardian')">
-                        Open GlucoseGuardian Pro
+                    <button class="btn" onclick="openApp('assessment')">
+                        Open Diabetes Assessment
+                    </button>
+                </div>
+            </div>
+            
+            <div class="app-card">
+                <div class="app-header">
+                    <div class="app-icon">
+                        <i class="fas fa-book-medical"></i>
+                    </div>
+                    <div>
+                        <h2>Diabetes Education</h2>
+                        <p>Complications awareness</p>
+                    </div>
+                </div>
+                <div class="app-content">
+                    <p class="app-description">
+                        Learn about diabetes complications and how to prevent them through comprehensive educational materials.
+                    </p>
+                    <div class="app-features">
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Organ damage timeline</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Complication prevention strategies</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Emergency situations guide</span>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="openApp('education')">
+                        Open Diabetes Education
+                    </button>
+                </div>
+            </div>
+            
+            <div class="app-card">
+                <div class="app-header">
+                    <div class="app-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div>
+                        <h2>RetinaScan AI</h2>
+                        <p>Diabetic retinopathy detection</p>
+                    </div>
+                </div>
+                <div class="app-content">
+                    <p class="app-description">
+                        AI-powered analysis of retinal images to detect diabetic retinopathy and other diabetes-related eye conditions.
+                    </p>
+                    <div class="app-features">
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Retinal image analysis</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Early detection of retinopathy</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Severity assessment</span>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="openApp('retinascan')">
+                        Open RetinaScan AI
+                    </button>
+                </div>
+            </div>
+            
+            <div class="app-card">
+                <div class="app-header">
+                    <div class="app-icon">
+                        <i class="fas fa-x-ray"></i>
+                    </div>
+                    <div>
+                        <h2>FootCheck Pro</h2>
+                        <p>Diabetic foot analysis</p>
+                    </div>
+                </div>
+                <div class="app-content">
+                    <p class="app-description">
+                        Analyze foot images to detect early signs of diabetic foot complications like ulcers, infections, and neuropathy.
+                    </p>
+                    <div class="app-features">
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Foot image analysis</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Ulcer detection</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Infection risk assessment</span>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="openApp('footcheck')">
+                        Open FootCheck Pro
                     </button>
                 </div>
             </div>
@@ -436,6 +572,28 @@
                         <span class="slider"></span>
                     </label>
                 </div>
+                
+                <div class="data-item">
+                    <div>
+                        <strong>Assessment Results</strong>
+                        <p>Share diabetes type assessment results</p>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" id="syncAssessment" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="data-item">
+                    <div>
+                        <strong>Medical Images</strong>
+                        <p>Share retinal and foot scan results</p>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" id="syncImages" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
             
             <button class="btn sync-btn" onclick="syncData()">
@@ -448,9 +606,13 @@
         <i class="fas fa-arrow-left"></i>
     </button>
     
-    <!-- Updated iframe sources to match your actual file names -->
-    <iframe id="glucostep-frame" class="app-frame" src="glucostep-pro"></iframe>
-    <iframe id="glucoseguardian-frame" class="app-frame" src="glucoseguardian-pro"></iframe>
+    <!-- Application iframes -->
+    <iframe id="glucostep-frame" class="app-frame" src="glucostep-pro (3).html"></iframe>
+    <iframe id="glucoseguardian-frame" class="app-frame" src="glucoseguardian-pro (3).html"></iframe>
+    <iframe id="assessment-frame" class="app-frame" src="DiabatesAssesment (1).html"></iframe>
+    <iframe id="education-frame" class="app-frame" src="Diabetes-Pamphlet (1).html"></iframe>
+    <iframe id="retinascan-frame" class="app-frame" src="retinascan-ai.html"></iframe>
+    <iframe id="footcheck-frame" class="app-frame" src="footcheck-pro.html"></iframe>
     
     <div class="footer">
         <p>&copy; 2023 Diabetes Management Suite. All rights reserved.</p>
@@ -468,6 +630,14 @@
                 document.getElementById('glucostep-frame').style.display = 'block';
             } else if (app === 'glucoseguardian') {
                 document.getElementById('glucoseguardian-frame').style.display = 'block';
+            } else if (app === 'assessment') {
+                document.getElementById('assessment-frame').style.display = 'block';
+            } else if (app === 'education') {
+                document.getElementById('education-frame').style.display = 'block';
+            } else if (app === 'retinascan') {
+                document.getElementById('retinascan-frame').style.display = 'block';
+            } else if (app === 'footcheck') {
+                document.getElementById('footcheck-frame').style.display = 'block';
             }
         }
         
@@ -479,6 +649,10 @@
             
             document.getElementById('glucostep-frame').style.display = 'none';
             document.getElementById('glucoseguardian-frame').style.display = 'none';
+            document.getElementById('assessment-frame').style.display = 'none';
+            document.getElementById('education-frame').style.display = 'none';
+            document.getElementById('retinascan-frame').style.display = 'none';
+            document.getElementById('footcheck-frame').style.display = 'none';
         }
         
         // Function to synchronize data between applications
@@ -487,6 +661,8 @@
             const syncGlucose = document.getElementById('syncGlucose').checked;
             const syncActivity = document.getElementById('syncActivity').checked;
             const syncContacts = document.getElementById('syncContacts').checked;
+            const syncAssessment = document.getElementById('syncAssessment').checked;
+            const syncImages = document.getElementById('syncImages').checked;
             
             // Show loading state
             const syncBtn = document.querySelector('.sync-btn');
@@ -527,6 +703,12 @@
                 } else if (event.data.type === 'ACTIVITY_DATA') {
                     // Store activity data for synchronization
                     localStorage.setItem('activityData', JSON.stringify(event.data.payload));
+                } else if (event.data.type === 'ASSESSMENT_DATA') {
+                    // Store assessment data for synchronization
+                    localStorage.setItem('assessmentData', JSON.stringify(event.data.payload));
+                } else if (event.data.type === 'IMAGE_ANALYSIS_DATA') {
+                    // Store image analysis data for synchronization
+                    localStorage.setItem('imageAnalysisData', JSON.stringify(event.data.payload));
                 }
             });
         }
