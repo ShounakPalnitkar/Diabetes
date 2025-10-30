@@ -31,13 +31,13 @@
         }
 
         .app-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
-            min-height: 90vh;
+            min-height: 95vh;
             margin-top: 20px;
             margin-bottom: 20px;
         }
@@ -80,6 +80,7 @@
             transition: all 0.3s;
             white-space: nowrap;
             border-bottom: 3px solid transparent;
+            cursor: pointer;
         }
 
         .nav-item i {
@@ -100,25 +101,24 @@
 
         /* Main Content */
         .app-main {
-            padding: 30px;
-            min-height: 500px;
+            padding: 0;
+            min-height: 600px;
         }
 
         .section {
             display: none;
-            animation: fadeIn 0.5s ease;
+            height: 100%;
         }
 
         .section.active {
             display: block;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        /* Dashboard */
+        .dashboard-section {
+            padding: 30px;
         }
 
-        /* Dashboard */
         .dashboard-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -210,10 +210,10 @@
         /* Feature Containers */
         .feature-container {
             background: white;
-            border-radius: 15px;
+            border-radius: 0;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            height: 600px;
+            height: 700px;
+            position: relative;
         }
 
         .feature-header {
@@ -238,6 +238,7 @@
             text-decoration: none;
             font-size: 0.9rem;
             transition: background 0.3s;
+            cursor: pointer;
         }
 
         .back-btn:hover {
@@ -248,6 +249,30 @@
             height: calc(100% - 70px);
             width: 100%;
             border: none;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Responsive */
@@ -270,7 +295,7 @@
                 font-size: 0.9rem;
             }
             
-            .app-main {
+            .dashboard-section {
                 padding: 20px;
             }
             
@@ -279,7 +304,7 @@
             }
             
             .feature-container {
-                height: 500px;
+                height: 600px;
             }
         }
     </style>
@@ -294,89 +319,91 @@
 
         <!-- Navigation -->
         <div class="app-nav">
-            <a href="#" class="nav-item active" data-target="dashboard">
+            <div class="nav-item active" data-target="dashboard">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
-            </a>
-            <a href="#" class="nav-item" data-target="assessment">
+            </div>
+            <div class="nav-item" data-target="assessment">
                 <i class="fas fa-stethoscope"></i> Diabetes Assessment
-            </a>
-            <a href="#" class="nav-item" data-target="education">
+            </div>
+            <div class="nav-item" data-target="education">
                 <i class="fas fa-book-medical"></i> Diabetes Education
-            </a>
-            <a href="#" class="nav-item" data-target="monitoring">
+            </div>
+            <div class="nav-item" data-target="monitoring">
                 <i class="fas fa-heartbeat"></i> Glucose Monitoring
-            </a>
-            <a href="#" class="nav-item" data-target="management">
+            </div>
+            <div class="nav-item" data-target="management">
                 <i class="fas fa-walking"></i> Activity Management
-            </a>
+            </div>
         </div>
 
         <!-- Main Content -->
         <div class="app-main">
             <!-- Dashboard Section -->
             <div id="dashboard" class="section active">
-                <h2 style="margin-bottom: 20px;">Dashboard Overview</h2>
-                
-                <div class="dashboard-stats">
-                    <div class="stat-card">
-                        <div class="stat-value" id="glucoseLevel">--</div>
-                        <div class="stat-label">Current Glucose</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="stepsToday">0</div>
-                        <div class="stat-label">Steps Today</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="timeInRange">--</div>
-                        <div class="stat-label">Time in Range</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="riskLevel">--</div>
-                        <div class="stat-label">Risk Level</div>
-                    </div>
-                </div>
-                
-                <h3 style="margin-bottom: 20px;">Available Tools</h3>
-                
-                <div class="dashboard-grid">
-                    <!-- Diabetes Assessment Tool -->
-                    <div class="feature-card" data-target="assessment">
-                        <div class="feature-icon">
-                            <i class="fas fa-stethoscope"></i>
+                <div class="dashboard-section">
+                    <h2 style="margin-bottom: 20px;">Dashboard Overview</h2>
+                    
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="glucoseLevel">--</div>
+                            <div class="stat-label">Current Glucose</div>
                         </div>
-                        <h3 class="feature-title">Diabetes Type Assessment</h3>
-                        <p class="feature-description">Answer 10 simple questions to understand your diabetes type and get personalized recommendations.</p>
-                        <div class="btn">Start Assessment</div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="stepsToday">0</div>
+                            <div class="stat-label">Steps Today</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="timeInRange">--</div>
+                            <div class="stat-label">Time in Range</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="riskLevel">--</div>
+                            <div class="stat-label">Risk Level</div>
+                        </div>
                     </div>
                     
-                    <!-- Educational Resources -->
-                    <div class="feature-card" data-target="education">
-                        <div class="feature-icon">
-                            <i class="fas fa-book-medical"></i>
-                        </div>
-                        <h3 class="feature-title">Diabetes Education</h3>
-                        <p class="feature-description">Learn about diabetes complications, prevention strategies, and how to manage your condition effectively.</p>
-                        <div class="btn">Learn More</div>
-                    </div>
+                    <h3 style="margin-bottom: 20px;">Available Tools</h3>
                     
-                    <!-- Glucose Monitoring -->
-                    <div class="feature-card" data-target="monitoring">
-                        <div class="feature-icon">
-                            <i class="fas fa-heartbeat"></i>
+                    <div class="dashboard-grid">
+                        <!-- Diabetes Assessment Tool -->
+                        <div class="feature-card" data-target="assessment">
+                            <div class="feature-icon">
+                                <i class="fas fa-stethoscope"></i>
+                            </div>
+                            <h3 class="feature-title">Diabetes Type Assessment</h3>
+                            <p class="feature-description">Answer 10 simple questions to understand your diabetes type and get personalized recommendations.</p>
+                            <div class="btn">Start Assessment</div>
                         </div>
-                        <h3 class="feature-title">Glucose Monitoring</h3>
-                        <p class="feature-description">Track your glucose levels, get alerts for highs and lows, and receive personalized recommendations.</p>
-                        <div class="btn">Monitor Glucose</div>
-                    </div>
-                    
-                    <!-- Activity Tracking -->
-                    <div class="feature-card" data-target="management">
-                        <div class="feature-icon">
-                            <i class="fas fa-walking"></i>
+                        
+                        <!-- Educational Resources -->
+                        <div class="feature-card" data-target="education">
+                            <div class="feature-icon">
+                                <i class="fas fa-book-medical"></i>
+                            </div>
+                            <h3 class="feature-title">Diabetes Education</h3>
+                            <p class="feature-description">Learn about diabetes complications, prevention strategies, and how to manage your condition effectively.</p>
+                            <div class="btn">Learn More</div>
                         </div>
-                        <h3 class="feature-title">Activity & Step Tracking</h3>
-                        <p class="feature-description">Track your steps, set goals, and see how physical activity impacts your glucose levels.</p>
-                        <div class="btn">Track Activity</div>
+                        
+                        <!-- Glucose Monitoring -->
+                        <div class="feature-card" data-target="monitoring">
+                            <div class="feature-icon">
+                                <i class="fas fa-heartbeat"></i>
+                            </div>
+                            <h3 class="feature-title">Glucose Monitoring</h3>
+                            <p class="feature-description">Track your glucose levels, get alerts for highs and lows, and receive personalized recommendations.</p>
+                            <div class="btn">Monitor Glucose</div>
+                        </div>
+                        
+                        <!-- Activity Tracking -->
+                        <div class="feature-card" data-target="management">
+                            <div class="feature-icon">
+                                <i class="fas fa-walking"></i>
+                            </div>
+                            <h3 class="feature-title">Activity & Step Tracking</h3>
+                            <p class="feature-description">Track your steps, set goals, and see how physical activity impacts your glucose levels.</p>
+                            <div class="btn">Track Activity</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -386,11 +413,16 @@
                 <div class="feature-container">
                     <div class="feature-header">
                         <h2><i class="fas fa-stethoscope"></i> Diabetes Type Assessment</h2>
-                        <a href="#" class="back-btn" data-target="dashboard">
+                        <div class="back-btn" data-target="dashboard">
                             <i class="fas fa-arrow-left"></i> Back to Dashboard
-                        </a>
+                        </div>
                     </div>
-                    <iframe src="DiabatesAssesment (1).html" class="feature-content"></iframe>
+                    <div class="feature-content">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading Diabetes Assessment...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -399,11 +431,16 @@
                 <div class="feature-container">
                     <div class="feature-header">
                         <h2><i class="fas fa-book-medical"></i> Diabetes Education</h2>
-                        <a href="#" class="back-btn" data-target="dashboard">
+                        <div class="back-btn" data-target="dashboard">
                             <i class="fas fa-arrow-left"></i> Back to Dashboard
-                        </a>
+                        </div>
                     </div>
-                    <iframe src="Diabetes-Pamphlet (1).html" class="feature-content"></iframe>
+                    <div class="feature-content">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading Diabetes Education...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -412,11 +449,16 @@
                 <div class="feature-container">
                     <div class="feature-header">
                         <h2><i class="fas fa-heartbeat"></i> Glucose Monitoring</h2>
-                        <a href="#" class="back-btn" data-target="dashboard">
+                        <div class="back-btn" data-target="dashboard">
                             <i class="fas fa-arrow-left"></i> Back to Dashboard
-                        </a>
+                        </div>
                     </div>
-                    <iframe src="glucoseguardian-pro (3).html" class="feature-content"></iframe>
+                    <div class="feature-content">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading Glucose Monitoring...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -425,11 +467,16 @@
                 <div class="feature-container">
                     <div class="feature-header">
                         <h2><i class="fas fa-walking"></i> Activity & Step Tracking</h2>
-                        <a href="#" class="back-btn" data-target="dashboard">
+                        <div class="back-btn" data-target="dashboard">
                             <i class="fas fa-arrow-left"></i> Back to Dashboard
-                        </a>
+                        </div>
                     </div>
-                    <iframe src="glucostep-pro (3).html" class="feature-content"></iframe>
+                    <div class="feature-content">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading Activity Management...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -442,6 +489,14 @@
         let timeInRange = '75%';
         let riskLevel = 'Low';
         
+        // File paths for your features
+        const featurePaths = {
+            assessment: 'DiabatesAssesment (1).html',
+            education: 'Diabetes-Pamphlet (1).html',
+            monitoring: 'glucoseguardian-pro (3).html',
+            management: 'glucostep-pro (3).html'
+        };
+
         // Initialize the app
         function initApp() {
             // Set up navigation
@@ -460,24 +515,9 @@
         function setupNavigation() {
             // Navigation items
             document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
+                item.addEventListener('click', function() {
                     const targetSection = this.getAttribute('data-target');
-                    
-                    // Hide all sections
-                    document.querySelectorAll('.section').forEach(section => {
-                        section.classList.remove('active');
-                    });
-                    
-                    // Show target section
-                    document.getElementById(targetSection).classList.add('active');
-                    
-                    // Update active nav link
-                    document.querySelectorAll('.nav-item').forEach(navItem => {
-                        navItem.classList.remove('active');
-                    });
-                    this.classList.add('active');
+                    showSection(targetSection);
                 });
             });
             
@@ -485,49 +525,89 @@
             document.querySelectorAll('.feature-card').forEach(card => {
                 card.addEventListener('click', function() {
                     const targetSection = this.getAttribute('data-target');
-                    
-                    // Hide all sections
-                    document.querySelectorAll('.section').forEach(section => {
-                        section.classList.remove('active');
-                    });
-                    
-                    // Show target section
-                    document.getElementById(targetSection).classList.add('active');
-                    
-                    // Update active nav link
-                    document.querySelectorAll('.nav-item').forEach(navItem => {
-                        navItem.classList.remove('active');
-                        if (navItem.getAttribute('data-target') === targetSection) {
-                            navItem.classList.add('active');
-                        }
-                    });
+                    showSection(targetSection);
                 });
             });
             
             // Back buttons
             document.querySelectorAll('.back-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
+                btn.addEventListener('click', function() {
                     const targetSection = this.getAttribute('data-target');
-                    
-                    // Hide all sections
-                    document.querySelectorAll('.section').forEach(section => {
-                        section.classList.remove('active');
-                    });
-                    
-                    // Show target section
-                    document.getElementById(targetSection).classList.add('active');
-                    
-                    // Update active nav link
-                    document.querySelectorAll('.nav-item').forEach(navItem => {
-                        navItem.classList.remove('active');
-                        if (navItem.getAttribute('data-target') === targetSection) {
-                            navItem.classList.add('active');
-                        }
-                    });
+                    showSection(targetSection);
                 });
             });
+        }
+        
+        // Show a specific section
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show target section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-item').forEach(navItem => {
+                navItem.classList.remove('active');
+                if (navItem.getAttribute('data-target') === sectionId) {
+                    navItem.classList.add('active');
+                }
+            });
+            
+            // Load feature content if not dashboard
+            if (sectionId !== 'dashboard') {
+                loadFeatureContent(sectionId);
+            }
+        }
+        
+        // Load feature content into iframe
+        function loadFeatureContent(featureId) {
+            const featureContent = document.querySelector(`#${featureId} .feature-content`);
+            
+            // Show loading state
+            featureContent.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading ${getFeatureName(featureId)}...</p>
+                </div>
+            `;
+            
+            // Try to load the feature file
+            setTimeout(() => {
+                const filePath = featurePaths[featureId];
+                if (filePath) {
+                    featureContent.innerHTML = `
+                        <iframe src="${filePath}" class="feature-content" 
+                                onload="this.style.opacity=1" 
+                                style="opacity:0; transition: opacity 0.3s; width:100%; height:100%; border:none;"></iframe>
+                    `;
+                } else {
+                    featureContent.innerHTML = `
+                        <div class="loading">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ffc107; margin-bottom: 15px;"></i>
+                            <h3>Feature Not Found</h3>
+                            <p>The ${getFeatureName(featureId)} file could not be loaded.</p>
+                            <p style="font-size: 0.9rem; margin-top: 10px;">Make sure <strong>${featurePaths[featureId] || 'the feature file'}</strong> is in the same directory.</p>
+                            <button class="btn" style="margin-top: 15px;" onclick="showSection('dashboard')">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </button>
+                        </div>
+                    `;
+                }
+            }, 1000);
+        }
+        
+        // Get feature display name
+        function getFeatureName(featureId) {
+            const names = {
+                assessment: 'Diabetes Assessment',
+                education: 'Diabetes Education',
+                monitoring: 'Glucose Monitoring',
+                management: 'Activity Management'
+            };
+            return names[featureId] || 'Feature';
         }
         
         // Update dashboard statistics
@@ -553,10 +633,11 @@
                 box-shadow: 0 5px 15px rgba(0,0,0,0.2);
                 z-index: 1000;
                 animation: slideIn 0.5s ease;
+                max-width: 300px;
             `;
             welcomeMsg.innerHTML = `
                 <strong>Welcome to Diabetes Health Hub!</strong>
-                <p style="margin: 5px 0 0; font-size: 0.9rem;">Explore our tools to manage your diabetes effectively.</p>
+                <p style="margin: 5px 0 0; font-size: 0.9rem;">All your diabetes management tools in one place.</p>
             `;
             document.body.appendChild(welcomeMsg);
             
@@ -564,23 +645,28 @@
             setTimeout(() => {
                 welcomeMsg.style.animation = 'slideOut 0.5s ease';
                 setTimeout(() => {
-                    document.body.removeChild(welcomeMsg);
+                    if (document.body.contains(welcomeMsg)) {
+                        document.body.removeChild(welcomeMsg);
+                    }
                 }, 500);
             }, 5000);
             
             // Add CSS for animations
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOut {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-            `;
-            document.head.appendChild(style);
+            if (!document.querySelector('#welcome-animations')) {
+                const style = document.createElement('style');
+                style.id = 'welcome-animations';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
         }
         
         // Initialize the app when DOM is loaded
