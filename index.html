@@ -3,910 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diabetes Management Suite - Complete Tool</title>
+    <title>Diabetes Management Suite</title>
     <style>
-        :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --accent: #f72585;
-            --success: #4cc9f0;
-            --warning: #f8961e;
-            --danger: #ef233c;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --glucose-normal: #4cc9f0;
-            --glucose-elevated: #f8961e;
-            --glucose-high: #ef233c;
-            --glucose-low: #f72585;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
-        .main-container {
-            max-width: 1400px;
+
+        .app-container {
+            max-width: 1200px;
             margin: 0 auto;
         }
-        
-        /* Header */
-        .header {
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .feature-card {
             background: white;
             border-radius: 20px;
             padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: block;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        
-        .header h1 {
-            color: var(--primary);
-            font-size: 2em;
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
             margin-bottom: 10px;
         }
-        
-        .security-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #e9ecef;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            margin-top: 10px;
+
+        .feature-description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
         }
-        
-        /* Two-column layout */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 25px;
-            margin-bottom: 25px;
-        }
-        
-        /* Cards */
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
-        .card-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-        
-        .glucose-icon { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-        .activity-icon { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
-        .guardian-icon { background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; }
-        
-        /* Glucose display */
-        .glucose-display {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .current-glucose {
-            font-size: 3em;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        
-        .glucose-status {
-            font-size: 1.2em;
-            font-weight: 600;
-            padding: 5px 15px;
-            border-radius: 20px;
+
+        .feature-badge {
             display: inline-block;
-        }
-        
-        /* Form elements */
-        .input-group {
-            margin-bottom: 15px;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-        
-        .input-group input:focus, .input-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-        
-        button:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-        }
-        
-        button.secondary {
-            background: var(--success);
-        }
-        
-        button.danger {
-            background: var(--danger);
-        }
-        
-        /* Lists */
-        .history-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background 0.3s;
-        }
-        
-        .history-item:hover {
-            background: #f8f9fa;
-        }
-        
-        .glucose-value {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        
-        .glucose-normal { color: var(--glucose-normal); }
-        .glucose-elevated { color: var(--glucose-elevated); }
-        .glucose-high { color: var(--glucose-high); }
-        .glucose-low { color: var(--glucose-low); }
-        
-        .delete-btn {
-            background: var(--danger);
-            padding: 5px 10px;
-            font-size: 0.8em;
-            width: auto;
-        }
-        
-        /* Steps counter */
-        .steps-display {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            color: white;
-            margin-bottom: 20px;
-        }
-        
-        .step-count {
-            font-size: 3.5em;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        
-        /* Alerts */
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .alert-warning {
-            background: #fff3cd;
-            border-left: 4px solid var(--warning);
-            color: #856404;
-        }
-        
-        .alert-danger {
-            background: #f8d7da;
-            border-left: 4px solid var(--danger);
-            color: #721c24;
-        }
-        
-        .alert-info {
-            background: #d1ecf1;
-            border-left: 4px solid var(--success);
-            color: #0c5460;
-        }
-        
-        /* Charts */
-        .chart-container {
-            margin-top: 20px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-        
-        canvas {
-            max-height: 300px;
-        }
-        
-        /* Sync section */
-        .sync-section {
-            background: white;
+            padding: 5px 12px;
+            background: #e0e7ff;
             border-radius: 20px;
-            padding: 25px;
-            margin-top: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            font-size: 0.8rem;
+            color: #4f46e5;
+            font-weight: 600;
         }
-        
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success);
+
+        .footer {
+            text-align: center;
             color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            display: none;
-            animation: slideIn 0.3s ease;
+            margin-top: 50px;
+            padding: 20px;
+            opacity: 0.8;
         }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
+
         @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 1.5em;
-            }
-        }
-        
-        /* Emergency button */
-        .emergency-btn {
-            background: var(--danger);
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 100;
-        }
-        
-        .emergency-btn:hover {
-            background: #c82333;
-            transform: scale(1.1);
+            h1 { font-size: 1.8rem; }
+            .features-grid { grid-template-columns: 1fr; }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="main-container">
-        <div class="header">
-            <h1><i class="fas fa-heartbeat"></i> Diabetes Management Suite</h1>
-            <p>Complete diabetes monitoring, activity tracking, and emergency management</p>
-            <div class="security-badge">
-                <i class="fas fa-lock"></i>
-                <span>End-to-End Encrypted | Local Storage Only</span>
-            </div>
+    <div class="app-container">
+        <h1> Diabetes Management Suite</h1>
+        <div class="subtitle">Complete diabetes care platform • 5 powerful tools in one app</div>
+
+        <div class="features-grid">
+            <!-- Feature 1: GlucoStep Pro -->
+            <a href="glucostep-pro%20(4).html" class="feature-card">
+                <div class="feature-icon"></div>
+                <div class="feature-title">GlucoStep Pro</div>
+                <div class="feature-description">
+                    Track steps, monitor glucose levels, view walking maps, and get AI-powered diabetes insights.
+                </div>
+                <span class="feature-badge">Step Tracking + Glucose</span>
+            </a>
+
+            <!-- Feature 2: Diabetes Type Assessment -->
+            <a href="index%20(86).html" class="feature-card">
+                <div class="feature-icon"></div>
+                <div class="feature-title">Diabetes Type Assessment</div>
+                <div class="feature-description">
+                    AI-powered questionnaire using 12 ML models and 8 LLMs to assess your diabetes type.
+                </div>
+                <span class="feature-badge">ML + LLM Diagnosis</span>
+            </a>
+
+            <!-- Feature 3: Complications Education -->
+            <a href="index%20(87).html" class="feature-card">
+                <div class="feature-icon"></div>
+                <div class="feature-title">Complications Awareness</div>
+                <div class="feature-description">
+                    Learn about diabetes complications, prevention strategies, and emergency signs.
+                </div>
+                <span class="feature-badge">Education + Prevention</span>
+            </a>
+
+            <!-- Feature 4: Medical Imaging -->
+            <a href="index%20(88).html" class="feature-card">
+                <div class="feature-icon"></div>
+                <div class="feature-title">Medical Imaging Analysis</div>
+                <div class="feature-description">
+                    Upload retinal scans, foot images, or body photos for AI-assisted risk assessment.
+                </div>
+                <span class="feature-badge">AI Imaging Analysis</span>
+            </a>
+
+            <!-- Feature 5: Glucose Guardian -->
+            <a href="index%20(89).html" class="feature-card">
+                <div class="feature-icon"></div>
+                <div class="feature-title">Glucose Guardian Pro</div>
+                <div class="feature-description">
+                    Real-time glucose monitoring, voice alerts, emergency contacts, and predictive analysis.
+                </div>
+                <span class="feature-badge">Emergency + Monitoring</span>
+            </a>
         </div>
-        
-        <div class="dashboard">
-            <!-- Left Column: GlucoStep Pro - Activity & Glucose -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon glucose-icon">
-                        <i class="fas fa-walking"></i>
-                    </div>
-                    <div>
-                        <h2>GlucoStep Pro</h2>
-                        <p>Track steps & glucose levels</p>
-                    </div>
-                </div>
-                
-                <div class="glucose-display">
-                    <i class="fas fa-tint"></i>
-                    <h3>Current Glucose Level</h3>
-                    <div class="current-glucose" id="currentGlucose">--</div>
-                    <div>
-                        <span class="glucose-status" id="glucoseStatus">--</span>
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <label><i class="fas fa-microphone-alt"></i> Add Glucose Reading (mg/dL)</label>
-                    <input type="number" id="glucoseInput" placeholder="Enter your glucose level">
-                    <small>Normal: 70-140 mg/dL | Before meals: 80-130 | After meals: <180</small>
-                </div>
-                
-                <div class="input-group">
-                    <label><i class="fas fa-clock"></i> Reading Time</label>
-                    <select id="readingType">
-                        <option value="fasting">Fasting (Before meal)</option>
-                        <option value="postprandial">Postprandial (After meal)</option>
-                        <option value="random">Random</option>
-                    </select>
-                </div>
-                
-                <button onclick="addGlucoseReading()">
-                    <i class="fas fa-save"></i> Save Reading
-                </button>
-                
-                <div class="steps-display" style="margin-top: 20px;">
-                    <i class="fas fa-shoe-prints"></i>
-                    <h3>Today's Steps</h3>
-                    <div class="step-count" id="stepCount">0</div>
-                    <div>Goal: 10,000 steps</div>
-                    <div class="progress-bar" style="margin-top: 10px;">
-                        <div style="background: rgba(255,255,255,0.3); border-radius: 10px; overflow: hidden;">
-                            <div id="stepProgress" style="width: 0%; height: 30px; background: white; transition: width 0.3s;"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <label><i class="fas fa-plus-circle"></i> Add Steps</label>
-                    <input type="number" id="stepsInput" placeholder="Number of steps">
-                </div>
-                
-                <button onclick="addSteps()" class="secondary">
-                    <i class="fas fa-shoe-prints"></i> Add Steps
-                </button>
-            </div>
-            
-            <!-- Right Column: GlucoseGuardian Pro -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon guardian-icon">
-                        <i class="fas fa-shield-heart"></i>
-                    </div>
-                    <div>
-                        <h2>GlucoseGuardian Pro</h2>
-                        <p>Hypo/Hyperglycemia monitoring</p>
-                    </div>
-                </div>
-                
-                <div id="alertsContainer"></div>
-                
-                <h3><i class="fas fa-chart-line"></i> Recent Readings</h3>
-                <div class="history-list" id="historyList"></div>
-                
-                <div class="chart-container">
-                    <canvas id="glucoseChart"></canvas>
-                </div>
-                
-                <div style="margin-top: 20px;">
-                    <h3><i class="fas fa-phone-alt"></i> Emergency Contacts</h3>
-                    <div id="contactsList"></div>
-                    
-                    <div class="input-group" style="margin-top: 10px;">
-                        <input type="text" id="contactName" placeholder="Contact Name">
-                        <input type="tel" id="contactPhone" placeholder="Phone Number" style="margin-top: 10px;">
-                        <button onclick="addEmergencyContact()" style="margin-top: 10px;">
-                            <i class="fas fa-plus"></i> Add Emergency Contact
-                        </button>
-                    </div>
-                </div>
-            </div>
+
+        <div class="footer">
+             Medical Disclaimer: This tool is for informational purposes only. Always consult your healthcare provider.
         </div>
-        
-        <div class="sync-section">
-            <h3><i class="fas fa-chart-bar"></i> Diabetes Insights & Recommendations</h3>
-            <div id="insightsContainer"></div>
-            
-            <div style="margin-top: 20px; display: flex; gap: 10px;">
-                <button onclick="exportData()">
-                    <i class="fas fa-download"></i> Export Data (JSON)
-                </button>
-                <button onclick="clearAllData()" class="danger">
-                    <i class="fas fa-trash"></i> Clear All Data
-                </button>
-            </div>
-        </div>
-        
-        <button class="emergency-btn" onclick="triggerEmergency()">
-            <i class="fas fa-phone-alt"></i>
-        </button>
     </div>
-    
-    <div class="notification" id="notification"></div>
-    
-    <script>
-        // Data storage
-        let glucoseReadings = [];
-        let steps = 0;
-        let emergencyContacts = [];
-        let glucoseChart = null;
-        
-        // Load data from localStorage
-        function loadData() {
-            const savedGlucose = localStorage.getItem('glucoseReadings');
-            if (savedGlucose) {
-                glucoseReadings = JSON.parse(savedGlucose);
-            } else {
-                // Sample data for demo
-                glucoseReadings = [
-                    { value: 120, type: 'fasting', timestamp: new Date(Date.now() - 86400000).toISOString() },
-                    { value: 145, type: 'postprandial', timestamp: new Date(Date.now() - 43200000).toISOString() },
-                    { value: 110, type: 'fasting', timestamp: new Date(Date.now() - 3600000).toISOString() }
-                ];
-            }
-            
-            const savedSteps = localStorage.getItem('steps');
-            if (savedSteps) {
-                steps = parseInt(savedSteps);
-            } else {
-                steps = 4500;
-            }
-            
-            const savedContacts = localStorage.getItem('emergencyContacts');
-            if (savedContacts) {
-                emergencyContacts = JSON.parse(savedContacts);
-            } else {
-                emergencyContacts = [
-                    { name: 'Dr. Sarah Johnson', phone: '+1-555-0123', relationship: 'Endocrinologist' },
-                    { name: 'Emergency Contact', phone: '+1-555-0124', relationship: 'Family' }
-                ];
-            }
-            
-            updateUI();
-        }
-        
-        // Save data to localStorage
-        function saveData() {
-            localStorage.setItem('glucoseReadings', JSON.stringify(glucoseReadings));
-            localStorage.setItem('steps', steps);
-            localStorage.setItem('emergencyContacts', JSON.stringify(emergencyContacts));
-        }
-        
-        // Get glucose status
-        function getGlucoseStatus(value) {
-            if (value < 70) return { text: 'LOW (Hypoglycemia)', class: 'glucose-low', alert: 'danger' };
-            if (value >= 70 && value <= 140) return { text: 'NORMAL', class: 'glucose-normal', alert: 'info' };
-            if (value > 140 && value <= 180) return { text: 'ELEVATED (Pre-diabetes range)', class: 'glucose-elevated', alert: 'warning' };
-            return { text: 'HIGH (Hyperglycemia)', class: 'glucose-high', alert: 'danger' };
-        }
-        
-        // Add glucose reading
-        function addGlucoseReading() {
-            const input = document.getElementById('glucoseInput');
-            const value = parseInt(input.value);
-            const type = document.getElementById('readingType').value;
-            
-            if (isNaN(value) || value < 20 || value > 600) {
-                showNotification('Please enter a valid glucose level (20-600 mg/dL)', 'error');
-                return;
-            }
-            
-            const reading = {
-                value: value,
-                type: type,
-                timestamp: new Date().toISOString()
-            };
-            
-            glucoseReadings.unshift(reading);
-            saveData();
-            updateUI();
-            
-            input.value = '';
-            showNotification('Glucose reading added successfully!', 'success');
-            
-            // Check for emergency
-            const status = getGlucoseStatus(value);
-            if (value < 55 || value > 300) {
-                triggerEmergencyAlert(`Critical glucose level: ${value} mg/dL - ${status.text}`);
-            }
-        }
-        
-        // Add steps
-        function addSteps() {
-            const input = document.getElementById('stepsInput');
-            const newSteps = parseInt(input.value);
-            
-            if (isNaN(newSteps) || newSteps < 0) {
-                showNotification('Please enter a valid number of steps', 'error');
-                return;
-            }
-            
-            steps += newSteps;
-            saveData();
-            updateUI();
-            
-            input.value = '';
-            showNotification(`Added ${newSteps} steps! Total: ${steps} steps`, 'success');
-            
-            // Show encouragement
-            if (steps >= 10000) {
-                showNotification('🎉 Congratulations! You\'ve reached your 10,000 step goal!', 'success');
-            }
-        }
-        
-        // Delete reading
-        function deleteReading(index) {
-            glucoseReadings.splice(index, 1);
-            saveData();
-            updateUI();
-            showNotification('Reading deleted', 'success');
-        }
-        
-        // Add emergency contact
-        function addEmergencyContact() {
-            const name = document.getElementById('contactName').value;
-            const phone = document.getElementById('contactPhone').value;
-            
-            if (!name || !phone) {
-                showNotification('Please enter both name and phone number', 'error');
-                return;
-            }
-            
-            emergencyContacts.push({ name, phone, relationship: 'Contact' });
-            saveData();
-            updateUI();
-            
-            document.getElementById('contactName').value = '';
-            document.getElementById('contactPhone').value = '';
-            showNotification('Emergency contact added!', 'success');
-        }
-        
-        // Delete contact
-        function deleteContact(index) {
-            emergencyContacts.splice(index, 1);
-            saveData();
-            updateUI();
-            showNotification('Contact deleted', 'success');
-        }
-        
-        // Update all UI elements
-        function updateUI() {
-            // Update current glucose display
-            if (glucoseReadings.length > 0) {
-                const latest = glucoseReadings[0];
-                document.getElementById('currentGlucose').textContent = `${latest.value} mg/dL`;
-                const status = getGlucoseStatus(latest.value);
-                const statusElement = document.getElementById('glucoseStatus');
-                statusElement.textContent = status.text;
-                statusElement.className = `glucose-status ${status.class}`;
-            }
-            
-            // Update steps
-            document.getElementById('stepCount').textContent = steps;
-            const progress = Math.min((steps / 10000) * 100, 100);
-            document.getElementById('stepProgress').style.width = `${progress}%`;
-            
-            // Update history list
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = '';
-            
-            glucoseReadings.forEach((reading, index) => {
-                const status = getGlucoseStatus(reading.value);
-                const date = new Date(reading.timestamp);
-                const timeStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-                const typeLabel = reading.type === 'fasting' ? 'Fasting' : (reading.type === 'postprandial' ? 'After Meal' : 'Random');
-                
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                div.innerHTML = `
-                    <div>
-                        <div class="glucose-value ${status.class}">${reading.value} mg/dL</div>
-                        <small>${typeLabel} - ${timeStr}</small>
-                    </div>
-                    <button class="delete-btn" onclick="deleteReading(${index})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                `;
-                historyList.appendChild(div);
-            });
-            
-            // Update contacts
-            const contactsList = document.getElementById('contactsList');
-            contactsList.innerHTML = '';
-            
-            emergencyContacts.forEach((contact, index) => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                div.innerHTML = `
-                    <div>
-                        <strong>${contact.name}</strong><br>
-                        <small>${contact.phone}</small>
-                    </div>
-                    <button class="delete-btn" onclick="deleteContact(${index})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                `;
-                contactsList.appendChild(div);
-            });
-            
-            // Update alerts
-            updateAlerts();
-            
-            // Update insights
-            updateInsights();
-            
-            // Update chart
-            updateChart();
-        }
-        
-        // Update alerts based on recent readings
-        function updateAlerts() {
-            const alertsContainer = document.getElementById('alertsContainer');
-            const recentReadings = glucoseReadings.slice(0, 5);
-            const alerts = [];
-            
-            recentReadings.forEach(reading => {
-                const status = getGlucoseStatus(reading.value);
-                if (reading.value < 70) {
-                    alerts.push({
-                        type: 'danger',
-                        message: `⚠️ Hypoglycemia Alert: ${reading.value} mg/dL - Consider consuming fast-acting carbohydrates`
-                    });
-                } else if (reading.value > 180) {
-                    alerts.push({
-                        type: 'warning',
-                        message: `⚠️ Hyperglycemia Alert: ${reading.value} mg/dL - Check insulin and stay hydrated`
-                    });
-                }
-            });
-            
-            if (alerts.length === 0) {
-                alertsContainer.innerHTML = '<div class="alert alert-info"><i class="fas fa-check-circle"></i> No active alerts. Your glucose levels are stable!</div>';
-            } else {
-                alertsContainer.innerHTML = alerts.slice(0, 2).map(alert => 
-                    `<div class="alert alert-${alert.type}">${alert.message}</div>`
-                ).join('');
-            }
-        }
-        
-        // Update insights and recommendations
-        function updateInsights() {
-            const insightsContainer = document.getElementById('insightsContainer');
-            
-            if (glucoseReadings.length === 0) {
-                insightsContainer.innerHTML = '<p>Add some glucose readings to get personalized insights!</p>';
-                return;
-            }
-            
-            const avgGlucose = glucoseReadings.reduce((sum, r) => sum + r.value, 0) / glucoseReadings.length;
-            const fastingReadings = glucoseReadings.filter(r => r.type === 'fasting');
-            const avgFasting = fastingReadings.length > 0 ? 
-                fastingReadings.reduce((sum, r) => sum + r.value, 0) / fastingReadings.length : null;
-            
-            const highReadings = glucoseReadings.filter(r => r.value > 180).length;
-            const lowReadings = glucoseReadings.filter(r => r.value < 70).length;
-            
-            let insights = `<div class="alert alert-info">
-                <strong>📊 Weekly Summary:</strong><br>
-                Average Glucose: ${avgGlucose.toFixed(0)} mg/dL<br>
-                ${avgFasting ? `Average Fasting: ${avgFasting.toFixed(0)} mg/dL<br>` : ''}
-                High episodes: ${highReadings} | Low episodes: ${lowReadings}
-            </div>`;
-            
-            // Recommendations based on data
-            insights += '<div class="alert alert-info"><strong>💡 Recommendations:</strong><br>';
-            
-            if (avgGlucose > 140) {
-                insights += '• Consider reducing carbohydrate intake and increasing physical activity<br>';
-            }
-            if (steps < 7000) {
-                insights += '• Try to increase daily steps to at least 7,000 for better glucose control<br>';
-            }
-            if (lowReadings > 2) {
-                insights += '• Frequent low readings detected. Consider adjusting medication with your doctor<br>';
-            }
-            if (highReadings > 3) {
-                insights += '• Multiple high readings. Check your medication timing and diet<br>';
-            }
-            if (avgGlucose >= 70 && avgGlucose <= 140 && steps >= 7000) {
-                insights += '• Excellent work! Your glucose and activity levels are well-managed!<br>';
-            }
-            
-            insights += '</div>';
-            
-            insightsContainer.innerHTML = insights;
-        }
-        
-        // Update chart
-        function updateChart() {
-            const ctx = document.getElementById('glucoseChart').getContext('2d');
-            const recentReadings = glucoseReadings.slice(0, 10).reverse();
-            
-            const labels = recentReadings.map(r => {
-                const date = new Date(r.timestamp);
-                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            });
-            
-            const data = recentReadings.map(r => r.value);
-            
-            if (glucoseChart) {
-                glucoseChart.destroy();
-            }
-            
-            glucoseChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Glucose Level (mg/dL)',
-                        data: data,
-                        borderColor: 'rgb(67, 97, 238)',
-                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `Glucose: ${context.raw} mg/dL`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'mg/dL'
-                            },
-                            min: 0,
-                            max: 300
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Trigger emergency
-        function triggerEmergency() {
-            const latestReading = glucoseReadings[0];
-            const message = `EMERGENCY ALERT: Diabetes emergency at ${new Date().toLocaleTimeString()}. ${latestReading ? `Latest glucose: ${latestReading.value} mg/dL. ` : ''}Please call emergency services if needed.`;
-            
-            showNotification('🚨 EMERGENCY ALERT! Contacts notified (demo mode)', 'error');
-            
-            // In a real app, this would call emergency services or send SMS
-            if (emergencyContacts.length > 0) {
-                let contactMessage = 'Emergency contacts:\n';
-                emergencyContacts.forEach(contact => {
-                    contactMessage += `${contact.name}: ${contact.phone}\n`;
-                });
-                alert(message + '\n\n' + contactMessage);
-            } else {
-                alert(message + '\n\nPlease add emergency contacts in the app!');
-            }
-        }
-        
-        function triggerEmergencyAlert(message) {
-            showNotification(message, 'error');
-            // Optional: Auto-trigger emergency for critical levels
-            if (confirm(`${message}\n\nWould you like to trigger emergency contacts?`)) {
-                triggerEmergency();
-            }
-        }
-        
-        // Export data
-        function exportData() {
-            const data = {
-                glucoseReadings: glucoseReadings,
-                steps: steps,
-                emergencyContacts: emergencyContacts,
-                exportDate: new Date().toISOString()
-            };
-            
-            const dataStr = JSON.stringify(data, null, 2);
-            const blob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `diabetes-data-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            showNotification('Data exported successfully!', 'success');
-        }
-        
-        // Clear all data
-        function clearAllData() {
-            if (confirm('⚠️ WARNING: This will delete ALL your data. Are you sure?')) {
-                glucoseReadings = [];
-                steps = 0;
-                emergencyContacts = [];
-                saveData();
-                updateUI();
-                showNotification('All data cleared', 'success');
-            }
-        }
-        
-        // Show notification
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.style.display = 'block';
-            notification.style.background = type === 'error' ? 'var(--danger)' : 'var(--success)';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-        
-        // Initialize
-        loadData();
-        
-        // Auto-save periodically
-        setInterval(() => {
-            saveData();
-        }, 30000);
-    </script>
 </body>
 </html>
